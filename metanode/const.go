@@ -198,8 +198,8 @@ const (
 
 const (
 	// interval of persisting in-memory data
-	DefaultPersistDataInternalSec   = 300
-	DefaultSyncCursorSecInternalSec = 60
+	DefaultPersistDataInternalSec = 300
+	DefaultSyncCursorInternalSec  = 60
 
 	defaultDelExtentsCnt     = 100000
 	defaultMaxQuotaGoroutine = 5

@@ -85,8 +85,8 @@ type MetaPartitionConfig struct {
 	ConnPool      *util.ConnectPool   `json:"-"`
 
 	// The following fields are used for schedule tasks.
-	SyncCursorSecInternalSec int64 `json:"sync_cursor_sec_internal_S"`
-	PersistDataInternalSec   int64 `json:"persist_data_internal_S"`
+	SyncCursorInternalSec  int64 `json:"sync_cursor_sec_internal_S"`
+	PersistDataInternalSec int64 `json:"persist_data_internal_S"`
 }
 
 func (c *MetaPartitionConfig) checkMeta() (err error) {
@@ -466,8 +466,8 @@ type metaPartition struct {
 	mqMgr                  *MetaQuotaManager
 
 	// interval time for schedule tasks
-	syncCursorSecInternalSec int64
-	persistDataInternalSec   int64
+	syncCursorInternalSec  int64
+	persistDataInternalSec int64
 }
 
 func (mp *metaPartition) acucumRebuildStart() {
@@ -721,27 +721,27 @@ func (mp *metaPartition) getRaftPort() (heartbeat, replica int, err error) {
 
 // NewMetaPartition creates a new meta partition with the specified configuration.
 func NewMetaPartition(conf *MetaPartitionConfig, manager *metadataManager) MetaPartition {
-	if conf.SyncCursorSecInternalSec <= DefaultSyncCursorSecInternalSec {
-		conf.SyncCursorSecInternalSec = DefaultSyncCursorSecInternalSec
+	if conf.SyncCursorInternalSec <= DefaultSyncCursorInternalSec {
+		conf.SyncCursorInternalSec = DefaultSyncCursorInternalSec
 	}
 	if conf.PersistDataInternalSec <= DefaultPersistDataInternalSec {
 		conf.PersistDataInternalSec = DefaultPersistDataInternalSec
 	}
 	mp := &metaPartition{
-		config:                   conf,
-		dentryTree:               NewBtree(),
-		inodeTree:                NewBtree(),
-		extendTree:               NewBtree(),
-		multipartTree:            NewBtree(),
-		stopC:                    make(chan bool),
-		storeChan:                make(chan *storeMsg, 100),
-		freeList:                 newFreeList(),
-		extDelCh:                 make(chan []proto.ExtentKey, defaultDelExtentsCnt),
-		extReset:                 make(chan struct{}),
-		vol:                      NewVol(),
-		manager:                  manager,
-		syncCursorSecInternalSec: conf.SyncCursorSecInternalSec,
-		persistDataInternalSec:   conf.PersistDataInternalSec,
+		config:                 conf,
+		dentryTree:             NewBtree(),
+		inodeTree:              NewBtree(),
+		extendTree:             NewBtree(),
+		multipartTree:          NewBtree(),
+		stopC:                  make(chan bool),
+		storeChan:              make(chan *storeMsg, 100),
+		freeList:               newFreeList(),
+		extDelCh:               make(chan []proto.ExtentKey, defaultDelExtentsCnt),
+		extReset:               make(chan struct{}),
+		vol:                    NewVol(),
+		manager:                manager,
+		syncCursorInternalSec:  conf.SyncCursorInternalSec,
+		persistDataInternalSec: conf.PersistDataInternalSec,
 	}
 	mp.txProcessor = NewTransactionProcessor(mp)
 	return mp

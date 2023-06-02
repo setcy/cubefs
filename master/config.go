@@ -25,7 +25,7 @@ import (
 	"github.com/cubefs/cubefs/raftstore"
 )
 
-//config key
+// config key
 const (
 	colonSplit = ":"
 	commaSplit = ","
@@ -47,7 +47,7 @@ const (
 	cfgMaxQuotaNumPerVol                = "maxQuotaNumPerVol"
 )
 
-//default value
+// default value
 const (
 	defaultTobeFreedDataPartitionCount         = 1000
 	defaultSecondsToFreeDataPartitionAfterLoad = 5 * 60 // a data partition can only be freed after loading 5 mins
@@ -81,6 +81,15 @@ const (
 	defaultNodeSetGrpStep                              = 1
 	defaultMasterMinQosAccept                          = 20000
 	defaultMaxDpCntLimit                               = 3000
+
+	// default internal time of schedule task in partitions
+	DefaultMpPersistDataInternalSec         = 300 // default interval to persist data in meta partition
+	DefaultMpSyncCursorInternalSec          = 60  // default interval to sync cursor in meta partition
+	DefaultDpUpdateReplicaIntervalSec       = 600 // default interval to update the replica in data partition
+	DefaultDpUpdatePartitionSizeInternalSec = 60  // default interval to update the partition size in data partition
+	DefaultDpStatusUpdateIntervalSec        = 60  // default status update interval in seconds in data partition
+	DefaultDpSnapshotIntervalSec            = 300 // default snapshot interval in seconds in data partition
+
 )
 
 // AddrDatabase is a map that stores the address of a given host (e.g., the leader)

@@ -48,7 +48,7 @@ type storeMsg struct {
 func (mp *metaPartition) startSchedule(curIndex uint64) {
 	timer := time.NewTimer(time.Hour * 24 * 365)
 	timer.Stop()
-	timerCursor := initTimer(mp.syncCursorSecInternalSec)
+	timerCursor := initTimer(mp.syncCursorInternalSec)
 	scheduleState := common.StateStopped
 	dumpFunc := func(msg *storeMsg) {
 		log.LogWarnf("[startSchedule] partitionId=%d: nowAppID"+
@@ -141,7 +141,7 @@ func (mp *metaPartition) startSchedule(curIndex uint64) {
 				}
 			case <-timerCursor.C:
 				if _, ok := mp.IsLeader(); !ok {
-					resetTimer(timerCursor, mp.syncCursorSecInternalSec)
+					resetTimer(timerCursor, mp.syncCursorInternalSec)
 					continue
 				}
 				Buf := make([]byte, 8)
@@ -154,7 +154,7 @@ func (mp *metaPartition) startSchedule(curIndex uint64) {
 				if _, err := mp.submit(opFSMSyncTxID, Buf); err != nil {
 					log.LogErrorf("[startSchedule] raft submit: %s", err.Error())
 				}
-				resetTimer(timerCursor, mp.syncCursorSecInternalSec)
+				resetTimer(timerCursor, mp.syncCursorInternalSec)
 			}
 		}
 	}(mp.stopC)

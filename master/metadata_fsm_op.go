@@ -255,6 +255,14 @@ type volValue struct {
 	IopsRLimit, IopsWLimit, FlowRlimit, FlowWlimit         uint64
 	IopsRMagnify, IopsWMagnify, FlowRMagnify, FlowWMagnify uint32
 	ClientReqPeriod, ClientHitTriggerCnt                   uint32
+
+	// internal time of schedule task in partitions
+	DpStatusUpdateIntervalSec        int64
+	DpSnapshotIntervalSec            int64
+	DpUpdateReplicaIntervalSec       int64
+	DpUpdatePartitionSizeInternalSec int64
+	MpSyncCursorInternalSec          int64
+	MpPersistDataInternalSec         int64
 }
 
 func (v *volValue) Bytes() (raw []byte, err error) {
@@ -886,7 +894,7 @@ func (c *Cluster) loadZoneValue() (err error) {
 	return
 }
 
-//persist cluster value if not persisted; set create time for cluster being created.
+// persist cluster value if not persisted; set create time for cluster being created.
 func (c *Cluster) checkPersistClusterValue() {
 	result, err := c.fsm.store.SeekForPrefix([]byte(clusterPrefix))
 	if err != nil {

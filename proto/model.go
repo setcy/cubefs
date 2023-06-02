@@ -89,8 +89,8 @@ type MetaPartitionInfo struct {
 	LoadResponse  []*MetaPartitionLoadResponse
 
 	// interval of scheduled tasks in meta partition
-	SyncCursorSecInternalSec int64
-	PersistSecInternalSec    int64
+	SyncCursorInternalSec  int64
+	PersistDataInternalSec int64
 }
 
 // MetaReplica defines the replica of a meta partition

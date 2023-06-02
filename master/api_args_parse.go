@@ -596,6 +596,14 @@ type createVolReq struct {
 	clientReqPeriod, clientHitTriggerCnt uint32
 	// cold vol args
 	coldArgs coldVolArgs
+
+	// internal time of schedule task in partitions
+	DpStatusUpdateIntervalSec        int64
+	DpSnapshotIntervalSec            int64
+	DpUpdateReplicaIntervalSec       int64
+	DpUpdatePartitionSizeInternalSec int64
+	MpSyncCursorInternalSec          int64
+	MpPersistDataInternalSec         int64
 }
 
 func checkCacheAction(action int) error {

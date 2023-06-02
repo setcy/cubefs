@@ -100,6 +100,14 @@ type Vol struct {
 	uidSpaceManager       *UidSpaceManager
 	volLock               sync.RWMutex
 	quotaManager          *MasterQuotaManager
+
+	// internal time of schedule task in partitions
+	dpStatusUpdateIntervalSec        int64
+	dpSnapshotIntervalSec            int64
+	dpUpdateReplicaIntervalSec       int64
+	dpUpdatePartitionSizeInternalSec int64
+	mpSyncCursorInternalSec          int64
+	mpPersistDataInternalSec         int64
 }
 
 func newVol(vv volValue) (vol *Vol) {
@@ -161,6 +169,32 @@ func newVol(vv volValue) (vol *Vol) {
 	}
 	vol.qosManager.volUpdateMagnify(magnifyQosVal)
 	vol.DpReadOnlyWhenVolFull = vv.DpReadOnlyWhenVolFull
+
+	if vv.MpPersistDataInternalSec <= DefaultMpPersistDataInternalSec {
+		vol.mpPersistDataInternalSec = DefaultMpPersistDataInternalSec
+	}
+	if vv.MpSyncCursorInternalSec <= DefaultMpSyncCursorInternalSec {
+		vol.mpSyncCursorInternalSec = DefaultMpSyncCursorInternalSec
+	}
+	if vv.DpStatusUpdateIntervalSec <= DefaultDpStatusUpdateIntervalSec {
+		vol.dpStatusUpdateIntervalSec = DefaultDpStatusUpdateIntervalSec
+	}
+	if vv.DpSnapshotIntervalSec <= DefaultDpSnapshotIntervalSec {
+		vol.dpSnapshotIntervalSec = DefaultDpSnapshotIntervalSec
+	}
+	if vv.DpUpdateReplicaIntervalSec <= DefaultDpUpdateReplicaIntervalSec {
+		vol.dpUpdateReplicaIntervalSec = DefaultDpUpdateReplicaIntervalSec
+	}
+	if vv.DpUpdatePartitionSizeInternalSec <= DefaultDpUpdatePartitionSizeInternalSec {
+		vol.dpUpdatePartitionSizeInternalSec = DefaultDpUpdatePartitionSizeInternalSec
+	}
+
+	vol.mpPersistDataInternalSec = vv.MpPersistDataInternalSec
+	vol.mpSyncCursorInternalSec = vv.MpSyncCursorInternalSec
+	vol.dpStatusUpdateIntervalSec = vv.DpStatusUpdateIntervalSec
+	vol.dpSnapshotIntervalSec = vv.DpSnapshotIntervalSec
+	vol.dpUpdateReplicaIntervalSec = vv.DpUpdateReplicaIntervalSec
+	vol.dpUpdatePartitionSizeInternalSec = vv.DpUpdatePartitionSizeInternalSec
 	return
 }
 

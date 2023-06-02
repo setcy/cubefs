@@ -2897,6 +2897,13 @@ func (c *Cluster) doCreateVol(req *createVolReq) (vol *Vol, err error) {
 		FlowWlimit:   req.qosLimitArgs.flowWVal,
 
 		DpReadOnlyWhenVolFull: req.DpReadOnlyWhenVolFull,
+
+		DpStatusUpdateIntervalSec:        req.DpStatusUpdateIntervalSec,
+		DpSnapshotIntervalSec:            req.DpSnapshotIntervalSec,
+		DpUpdateReplicaIntervalSec:       req.DpUpdateReplicaIntervalSec,
+		DpUpdatePartitionSizeInternalSec: req.DpUpdatePartitionSizeInternalSec,
+		MpSyncCursorInternalSec:          req.MpSyncCursorInternalSec,
+		MpPersistDataInternalSec:         req.MpPersistDataInternalSec,
 	}
 
 	log.LogInfof("[doCreateVol] volView, %v", vv)

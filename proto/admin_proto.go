@@ -837,6 +837,13 @@ type SimpleVolView struct {
 	CacheRule        string
 	PreloadCapacity  uint64
 	Uids             []UidSimpleInfo
+
+	DpStatusUpdateIntervalSec        int64
+	DpSnapshotIntervalSec            int64
+	DpUpdateReplicaIntervalSec       int64
+	DpUpdatePartitionSizeInternalSec int64
+	MpSyncCursorInternalSec          int64
+	MpPersistDataInternalSec         int64
 }
 
 type NodeSetInfo struct {

@@ -71,8 +71,8 @@ type MetaPartition struct {
 	sync.RWMutex
 
 	// interval of scheduled tasks in meta partition
-	SyncCursorSecInternalSec int64
-	PersistSecInternalSec    int64
+	SyncCursorInternalSec  int64
+	PersistDataInternalSec int64
 }
 
 func newMetaReplica(start, end uint64, metaNode *MetaNode) (mr *MetaReplica) {
