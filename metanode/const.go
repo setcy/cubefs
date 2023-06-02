@@ -15,8 +15,6 @@
 package metanode
 
 import (
-	"time"
-
 	"github.com/cubefs/cubefs/proto"
 	"github.com/cubefs/cubefs/util/errors"
 )
@@ -200,8 +198,8 @@ const (
 
 const (
 	// interval of persisting in-memory data
-	intervalToPersistData = time.Minute * 5
-	intervalToSyncCursor  = time.Minute * 1
+	DefaultPersistDataInternalSec   = 300
+	DefaultSyncCursorSecInternalSec = 60
 
 	defaultDelExtentsCnt     = 100000
 	defaultMaxQuotaGoroutine = 5

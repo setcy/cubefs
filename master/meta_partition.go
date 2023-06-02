@@ -69,6 +69,10 @@ type MetaPartition struct {
 	uidInfo          []*proto.UidReportSpaceInfo
 	EqualCheckPass   bool
 	sync.RWMutex
+
+	// interval of scheduled tasks in meta partition
+	SyncCursorSecInternalSec int64
+	PersistSecInternalSec    int64
 }
 
 func newMetaReplica(start, end uint64, metaNode *MetaNode) (mr *MetaReplica) {
@@ -144,7 +148,7 @@ func (mp *MetaPartition) updateInodeIDRangeForAllReplicas() {
 	}
 }
 
-//canSplit caller must be add lock
+// canSplit caller must be add lock
 func (mp *MetaPartition) canSplit(end uint64, metaPartitionInodeIdStep uint64) (err error) {
 	if end < mp.Start {
 		err = fmt.Errorf("end[%v] less than mp.start[%v]", end, mp.Start)

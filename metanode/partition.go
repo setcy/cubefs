@@ -83,6 +83,10 @@ type MetaPartitionConfig struct {
 	AfterStop     func()              `json:"-"`
 	RaftStore     raftstore.RaftStore `json:"-"`
 	ConnPool      *util.ConnectPool   `json:"-"`
+
+	// The following fields are used for schedule tasks.
+	SyncCursorSecInternalSec int64 `json:"sync_cursor_sec_internal_S"`
+	PersistDataInternalSec   int64 `json:"persist_data_internal_S"`
 }
 
 func (c *MetaPartitionConfig) checkMeta() (err error) {
@@ -428,9 +432,10 @@ type OpQuota interface {
 // metaPartition manages the range of the inode IDs.
 // When a new inode is requested, it allocates a new inode id for this inode if possible.
 // States:
-//  +-----+             +-------+
-//  | New | → Restore → | Ready |
-//  +-----+             +-------+
+//
+//	+-----+             +-------+
+//	| New | → Restore → | Ready |
+//	+-----+             +-------+
 type metaPartition struct {
 	config                 *MetaPartitionConfig
 	size                   uint64                // For partition all file size
@@ -459,6 +464,10 @@ type metaPartition struct {
 	xattrLock              sync.Mutex
 	fileRange              []int64
 	mqMgr                  *MetaQuotaManager
+
+	// interval time for schedule tasks
+	syncCursorSecInternalSec int64
+	persistDataInternalSec   int64
 }
 
 func (mp *metaPartition) acucumRebuildStart() {
@@ -712,19 +721,27 @@ func (mp *metaPartition) getRaftPort() (heartbeat, replica int, err error) {
 
 // NewMetaPartition creates a new meta partition with the specified configuration.
 func NewMetaPartition(conf *MetaPartitionConfig, manager *metadataManager) MetaPartition {
+	if conf.SyncCursorSecInternalSec <= DefaultSyncCursorSecInternalSec {
+		conf.SyncCursorSecInternalSec = DefaultSyncCursorSecInternalSec
+	}
+	if conf.PersistDataInternalSec <= DefaultPersistDataInternalSec {
+		conf.PersistDataInternalSec = DefaultPersistDataInternalSec
+	}
 	mp := &metaPartition{
-		config:        conf,
-		dentryTree:    NewBtree(),
-		inodeTree:     NewBtree(),
-		extendTree:    NewBtree(),
-		multipartTree: NewBtree(),
-		stopC:         make(chan bool),
-		storeChan:     make(chan *storeMsg, 100),
-		freeList:      newFreeList(),
-		extDelCh:      make(chan []proto.ExtentKey, defaultDelExtentsCnt),
-		extReset:      make(chan struct{}),
-		vol:           NewVol(),
-		manager:       manager,
+		config:                   conf,
+		dentryTree:               NewBtree(),
+		inodeTree:                NewBtree(),
+		extendTree:               NewBtree(),
+		multipartTree:            NewBtree(),
+		stopC:                    make(chan bool),
+		storeChan:                make(chan *storeMsg, 100),
+		freeList:                 newFreeList(),
+		extDelCh:                 make(chan []proto.ExtentKey, defaultDelExtentsCnt),
+		extReset:                 make(chan struct{}),
+		vol:                      NewVol(),
+		manager:                  manager,
+		syncCursorSecInternalSec: conf.SyncCursorSecInternalSec,
+		persistDataInternalSec:   conf.PersistDataInternalSec,
 	}
 	mp.txProcessor = NewTransactionProcessor(mp)
 	return mp

@@ -87,6 +87,10 @@ type MetaPartitionInfo struct {
 	OfflinePeerID uint64
 	MissNodes     map[string]int64
 	LoadResponse  []*MetaPartitionLoadResponse
+
+	// interval of scheduled tasks in meta partition
+	SyncCursorSecInternalSec int64
+	PersistSecInternalSec    int64
 }
 
 // MetaReplica defines the replica of a meta partition
@@ -195,7 +199,7 @@ type VolStatInfo struct {
 	DpReadOnlyWhenVolFull bool
 }
 
-// DataPartitionInfo represents the structure of storing the file contents.
+// DataPartition represents the structure of storing the file contents.
 type DataPartitionInfo struct {
 	PartitionID              uint64
 	PartitionTTL             int64

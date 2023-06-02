@@ -16,6 +16,7 @@ package metanode
 
 import (
 	"encoding/binary"
+	"math/rand"
 	"sync/atomic"
 	"time"
 
@@ -24,6 +25,8 @@ import (
 	"github.com/cubefs/cubefs/util/exporter"
 	"github.com/cubefs/cubefs/util/log"
 )
+
+const RandomIntervalS = 30
 
 type storeMsg struct {
 	command       uint32
@@ -45,7 +48,7 @@ type storeMsg struct {
 func (mp *metaPartition) startSchedule(curIndex uint64) {
 	timer := time.NewTimer(time.Hour * 24 * 365)
 	timer.Stop()
-	timerCursor := time.NewTimer(intervalToSyncCursor)
+	timerCursor := initTimer(mp.syncCursorSecInternalSec)
 	scheduleState := common.StateStopped
 	dumpFunc := func(msg *storeMsg) {
 		log.LogWarnf("[startSchedule] partitionId=%d: nowAppID"+
@@ -74,7 +77,7 @@ func (mp *metaPartition) startSchedule(curIndex uint64) {
 		}
 
 		if _, ok := mp.IsLeader(); ok {
-			timer.Reset(intervalToPersistData)
+			resetTimer(timer, mp.persistDataInternalSec)
 		}
 		atomic.StoreUint32(&scheduleState, common.StateStopped)
 	}
@@ -111,7 +114,7 @@ func (mp *metaPartition) startSchedule(curIndex uint64) {
 					go dumpFunc(maxMsg)
 				} else {
 					if _, ok := mp.IsLeader(); ok {
-						timer.Reset(intervalToPersistData)
+						resetTimer(timer, mp.persistDataInternalSec)
 					}
 					atomic.StoreUint32(&scheduleState, common.StateStopped)
 				}
@@ -119,7 +122,7 @@ func (mp *metaPartition) startSchedule(curIndex uint64) {
 			case msg := <-mp.storeChan:
 				switch msg.command {
 				case startStoreTick:
-					timer.Reset(intervalToPersistData)
+					resetTimer(timer, mp.persistDataInternalSec)
 				case stopStoreTick:
 					timer.Stop()
 				case opFSMStoreTick:
@@ -127,18 +130,18 @@ func (mp *metaPartition) startSchedule(curIndex uint64) {
 				}
 			case <-timer.C:
 				if mp.applyID <= curIndex {
-					timer.Reset(intervalToPersistData)
+					resetTimer(timer, mp.persistDataInternalSec)
 					continue
 				}
 				if _, err := mp.submit(opFSMStoreTick, nil); err != nil {
 					log.LogErrorf("[startSchedule] raft submit: %s", err.Error())
 					if _, ok := mp.IsLeader(); ok {
-						timer.Reset(intervalToPersistData)
+						resetTimer(timer, mp.persistDataInternalSec)
 					}
 				}
 			case <-timerCursor.C:
 				if _, ok := mp.IsLeader(); !ok {
-					timerCursor.Reset(intervalToSyncCursor)
+					resetTimer(timerCursor, mp.syncCursorSecInternalSec)
 					continue
 				}
 				Buf := make([]byte, 8)
@@ -151,7 +154,7 @@ func (mp *metaPartition) startSchedule(curIndex uint64) {
 				if _, err := mp.submit(opFSMSyncTxID, Buf); err != nil {
 					log.LogErrorf("[startSchedule] raft submit: %s", err.Error())
 				}
-				timerCursor.Reset(intervalToSyncCursor)
+				resetTimer(timerCursor, mp.syncCursorSecInternalSec)
 			}
 		}
 	}(mp.stopC)
@@ -161,4 +164,13 @@ func (mp *metaPartition) stop() {
 	if mp.stopC != nil {
 		close(mp.stopC)
 	}
+}
+
+func initTimer(ts int64) *time.Timer {
+	return time.NewTimer(time.Duration(ts+rand.Int63n(RandomIntervalS)) * time.Second)
+}
+
+func resetTimer(timer *time.Timer, ts int64) {
+	rand.Seed(time.Now().UnixNano())
+	timer.Reset(time.Duration(ts+rand.Int63n(RandomIntervalS)) * time.Second)
 }
