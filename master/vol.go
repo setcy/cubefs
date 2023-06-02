@@ -170,22 +170,22 @@ func newVol(vv volValue) (vol *Vol) {
 	vol.qosManager.volUpdateMagnify(magnifyQosVal)
 	vol.DpReadOnlyWhenVolFull = vv.DpReadOnlyWhenVolFull
 
-	if vv.MpPersistDataInternalSec <= DefaultMpPersistDataInternalSec {
+	if vv.MpPersistDataInternalSec < DefaultMpPersistDataInternalSec {
 		vol.mpPersistDataInternalSec = DefaultMpPersistDataInternalSec
 	}
-	if vv.MpSyncCursorInternalSec <= DefaultMpSyncCursorInternalSec {
+	if vv.MpSyncCursorInternalSec < DefaultMpSyncCursorInternalSec {
 		vol.mpSyncCursorInternalSec = DefaultMpSyncCursorInternalSec
 	}
-	if vv.DpStatusUpdateIntervalSec <= DefaultDpStatusUpdateIntervalSec {
+	if vv.DpStatusUpdateIntervalSec < DefaultDpStatusUpdateIntervalSec {
 		vol.dpStatusUpdateIntervalSec = DefaultDpStatusUpdateIntervalSec
 	}
-	if vv.DpSnapshotIntervalSec <= DefaultDpSnapshotIntervalSec {
+	if vv.DpSnapshotIntervalSec < DefaultDpSnapshotIntervalSec {
 		vol.dpSnapshotIntervalSec = DefaultDpSnapshotIntervalSec
 	}
-	if vv.DpUpdateReplicaIntervalSec <= DefaultDpUpdateReplicaIntervalSec {
+	if vv.DpUpdateReplicaIntervalSec < DefaultDpUpdateReplicaIntervalSec {
 		vol.dpUpdateReplicaIntervalSec = DefaultDpUpdateReplicaIntervalSec
 	}
-	if vv.DpUpdatePartitionSizeInternalSec <= DefaultDpUpdatePartitionSizeInternalSec {
+	if vv.DpUpdatePartitionSizeInternalSec < DefaultDpUpdatePartitionSizeInternalSec {
 		vol.dpUpdatePartitionSizeInternalSec = DefaultDpUpdatePartitionSizeInternalSec
 	}
 

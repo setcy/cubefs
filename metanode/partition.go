@@ -721,10 +721,10 @@ func (mp *metaPartition) getRaftPort() (heartbeat, replica int, err error) {
 
 // NewMetaPartition creates a new meta partition with the specified configuration.
 func NewMetaPartition(conf *MetaPartitionConfig, manager *metadataManager) MetaPartition {
-	if conf.SyncCursorInternalSec <= DefaultSyncCursorInternalSec {
+	if conf.SyncCursorInternalSec < DefaultSyncCursorInternalSec {
 		conf.SyncCursorInternalSec = DefaultSyncCursorInternalSec
 	}
-	if conf.PersistDataInternalSec <= DefaultPersistDataInternalSec {
+	if conf.PersistDataInternalSec < DefaultPersistDataInternalSec {
 		conf.PersistDataInternalSec = DefaultPersistDataInternalSec
 	}
 	mp := &metaPartition{
