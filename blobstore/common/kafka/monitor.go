@@ -86,7 +86,7 @@ func (o *offsetMap) getOffset(pid int32) int64 {
 	if _, ok := o.offsetMap[pid]; ok {
 		return o.offsetMap[pid]
 	}
-	return 0
+	return sarama.OffsetOldest
 }
 
 func (o *offsetMap) setOffset(offset int64, pid int32) {
@@ -168,6 +168,7 @@ func (monitor *Monitor) loopAcquireKafkaOffset() {
 			}
 			monitor.report()
 		case <-monitor.Closer.Done():
+			monitor.report()
 			return
 		}
 	}
@@ -179,7 +180,6 @@ func (monitor *Monitor) update(pid int32) error {
 		log.Errorf("get newest offset failed: topic[%s], pid[%d]", monitor.topic, pid)
 		return err
 	}
-	log.Debugf("set newest offset:%d", newestOffset)
 	monitor.newestOffsetMap.setOffset(newestOffset, pid)
 
 	oldestOffset, err := monitor.kafkaClient.GetOffset(monitor.topic, pid, sarama.OffsetOldest)
@@ -187,7 +187,6 @@ func (monitor *Monitor) update(pid int32) error {
 		log.Errorf("get oldest offset failed: topic[%s], pid[%d]", monitor.topic, pid)
 		return err
 	}
-	log.Debugf("set oldest offset: %d", oldestOffset)
 	monitor.oldestOffsetMap.setOffset(oldestOffset, pid)
 	return nil
 }
@@ -197,16 +196,20 @@ func (monitor *Monitor) report() {
 		oldestOffset := monitor.oldestOffsetMap.getOffset(pid)
 		newestOffset := monitor.newestOffsetMap.getOffset(pid)
 		consumeOffset := monitor.consumeOffsetMap.getOffset(pid)
-		latency := newestOffset - consumeOffset - 1 //-1，because the newestOffset is the next message offset
+		latency := int64(0)
+		if consumeOffset < oldestOffset && consumeOffset < 0 { // means not consumed yet
+			latency = newestOffset - oldestOffset - 1 //-1，because the newestOffset is the next message offset
+		} else {
+			latency = newestOffset - consumeOffset - 1
+		}
 		if latency < 0 {
 			latency = 0
 		}
 
-		monitor.reportOffsetMetric(pid, string("oldest"), float64(oldestOffset))
-		monitor.reportOffsetMetric(pid, string("newest"), float64(newestOffset))
-		monitor.reportOffsetMetric(pid, string("consume"), float64(consumeOffset))
+		monitor.reportOffsetMetric(pid, "oldest", float64(oldestOffset))
+		monitor.reportOffsetMetric(pid, "newest", float64(newestOffset))
+		monitor.reportOffsetMetric(pid, "consume", float64(consumeOffset))
 		monitor.reportLatencyMetric(pid, float64(latency))
-		log.Debug("Report...")
 	}
 }
 
