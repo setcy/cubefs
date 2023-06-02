@@ -195,7 +195,7 @@ type VolStatInfo struct {
 	DpReadOnlyWhenVolFull bool
 }
 
-// DataPartition represents the structure of storing the file contents.
+// DataPartitionInfo represents the structure of storing the file contents.
 type DataPartitionInfo struct {
 	PartitionID              uint64
 	PartitionTTL             int64
@@ -219,6 +219,12 @@ type DataPartitionInfo struct {
 	SingleDecommissionAddr   string
 	RdOnly                   bool
 	IsDiscard                bool
+
+	// interval of scheduled tasks in data partition
+	StatusUpdateIntervalSec        int64
+	SnapshotIntervalSec            int64
+	UpdateReplicaIntervalSec       int64
+	UpdatePartitionSizeInternalSec int64
 }
 
 // FileInCore define file in data partition

@@ -15,9 +15,12 @@
 package datanode
 
 const (
-	IntervalToUpdateReplica       = 600 // interval to update the replica
-	IntervalToUpdatePartitionSize = 60  // interval to update the partition size
-	NumOfFilesToRecoverInParallel = 10  // number of files to be recovered simultaneously
+	NumOfFilesToRecoverInParallel = 10 // number of files to be recovered simultaneously
+
+	DefaultUpdateReplicaIntervalSec       = 600 // default interval to update the replica
+	DefaultUpdatePartitionSizeInternalSec = 60  // default interval to update the partition size
+	DefaultStatusUpdateIntervalSec        = 60  // default status update interval in seconds
+	DefaultSnapshotIntervalSec            = 300 // default snapshot interval in seconds
 )
 
 // Network protocol

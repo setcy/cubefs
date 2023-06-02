@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"math"
+	"math/rand"
 	"os"
 	"path"
 	"strconv"
@@ -53,6 +54,7 @@ const (
 	ApplyIndexFile                = "APPLY"
 	TempApplyIndexFile            = ".apply"
 	TimeLayout                    = "2006-01-02 15:04:05"
+	RandomIntervalS               = 30
 )
 
 const (
@@ -71,6 +73,12 @@ type DataPartitionMetadata struct {
 	DataPartitionCreateType int
 	LastTruncateID          uint64
 	ReplicaNum              int
+
+	// configure the interval of scheduled tasks
+	statusUpdateIntervalSec        int64
+	snapshotIntervalSec            int64
+	updateReplicaIntervalSec       int64
+	updatePartitionSizeInternalSec int64
 }
 
 type sortedPeers []proto.Peer
@@ -136,6 +144,12 @@ type DataPartition struct {
 	DataPartitionCreateType       int
 	isLoadingDataPartition        bool
 	persistMetaMutex              sync.RWMutex
+
+	// configure the interval of scheduled tasks
+	statusUpdateIntervalSec        int64
+	snapshotIntervalSec            int64
+	updateReplicaIntervalSec       int64
+	updatePartitionSizeInternalSec int64
 }
 
 func CreateDataPartition(dpCfg *dataPartitionCfg, disk *Disk, request *proto.CreateDataPartitionRequest) (dp *DataPartition, err error) {
@@ -218,16 +232,20 @@ func LoadDataPartition(partitionDir string, disk *Disk) (dp *DataPartition, err 
 	}
 
 	dpCfg := &dataPartitionCfg{
-		VolName:       meta.VolumeID,
-		PartitionSize: meta.PartitionSize,
-		PartitionType: meta.PartitionType,
-		PartitionID:   meta.PartitionID,
-		ReplicaNum:    meta.ReplicaNum,
-		Peers:         meta.Peers,
-		Hosts:         meta.Hosts,
-		RaftStore:     disk.space.GetRaftStore(),
-		NodeID:        disk.space.GetNodeID(),
-		ClusterID:     disk.space.GetClusterID(),
+		VolName:                        meta.VolumeID,
+		PartitionSize:                  meta.PartitionSize,
+		PartitionType:                  meta.PartitionType,
+		PartitionID:                    meta.PartitionID,
+		ReplicaNum:                     meta.ReplicaNum,
+		Peers:                          meta.Peers,
+		Hosts:                          meta.Hosts,
+		RaftStore:                      disk.space.GetRaftStore(),
+		NodeID:                         disk.space.GetNodeID(),
+		ClusterID:                      disk.space.GetClusterID(),
+		StatusUpdateIntervalSec:        meta.statusUpdateIntervalSec,
+		SnapshotIntervalSec:            meta.snapshotIntervalSec,
+		UpdateReplicaIntervalSec:       meta.updateReplicaIntervalSec,
+		UpdatePartitionSizeInternalSec: meta.updatePartitionSizeInternalSec,
 	}
 	if dp, err = newDataPartition(dpCfg, disk, false); err != nil {
 		return
@@ -275,24 +293,41 @@ func newDataPartition(dpCfg *dataPartitionCfg, disk *Disk, isCreate bool) (dp *D
 		return nil, fmt.Errorf("newDataPartition fail, dataPartitionCfg(%v)", dpCfg)
 	}
 
+	if dpCfg.StatusUpdateIntervalSec < DefaultStatusUpdateIntervalSec {
+		dpCfg.StatusUpdateIntervalSec = DefaultStatusUpdateIntervalSec
+	}
+	if dpCfg.SnapshotIntervalSec < DefaultSnapshotIntervalSec {
+		dpCfg.SnapshotIntervalSec = DefaultSnapshotIntervalSec
+	}
+	if dpCfg.UpdateReplicaIntervalSec < DefaultUpdateReplicaIntervalSec {
+		dpCfg.UpdateReplicaIntervalSec = DefaultUpdateReplicaIntervalSec
+	}
+	if dpCfg.UpdatePartitionSizeInternalSec < DefaultUpdatePartitionSizeInternalSec {
+		dpCfg.UpdatePartitionSizeInternalSec = DefaultUpdatePartitionSizeInternalSec
+	}
+
 	partition := &DataPartition{
-		volumeID:        dpCfg.VolName,
-		clusterID:       dpCfg.ClusterID,
-		partitionID:     partitionID,
-		replicaNum:      dpCfg.ReplicaNum,
-		disk:            disk,
-		dataNode:        disk.dataNode,
-		path:            dataPath,
-		partitionSize:   dpCfg.PartitionSize,
-		partitionType:   dpCfg.PartitionType,
-		replicas:        make([]string, 0),
-		stopC:           make(chan bool, 0),
-		stopRaftC:       make(chan uint64, 0),
-		storeC:          make(chan uint64, 128),
-		snapshot:        make([]*proto.File, 0),
-		partitionStatus: proto.ReadWrite,
-		config:          dpCfg,
-		raftStatus:      RaftStatusStopped,
+		volumeID:                       dpCfg.VolName,
+		clusterID:                      dpCfg.ClusterID,
+		partitionID:                    partitionID,
+		replicaNum:                     dpCfg.ReplicaNum,
+		disk:                           disk,
+		dataNode:                       disk.dataNode,
+		path:                           dataPath,
+		partitionSize:                  dpCfg.PartitionSize,
+		partitionType:                  dpCfg.PartitionType,
+		replicas:                       make([]string, 0),
+		stopC:                          make(chan bool, 0),
+		stopRaftC:                      make(chan uint64, 0),
+		storeC:                         make(chan uint64, 128),
+		snapshot:                       make([]*proto.File, 0),
+		partitionStatus:                proto.ReadWrite,
+		config:                         dpCfg,
+		raftStatus:                     RaftStatusStopped,
+		statusUpdateIntervalSec:        dpCfg.StatusUpdateIntervalSec,
+		snapshotIntervalSec:            dpCfg.SnapshotIntervalSec,
+		updateReplicaIntervalSec:       dpCfg.UpdateReplicaIntervalSec,
+		updatePartitionSizeInternalSec: dpCfg.UpdatePartitionSizeInternalSec,
 	}
 	log.LogInfof("action[newDataPartition] dp %v replica num %v isCreate %v", partitionID, dpCfg.ReplicaNum, isCreate)
 	partition.replicasInit()
@@ -530,16 +565,17 @@ func (dp *DataPartition) PersistMetadata() (err error) {
 	return
 }
 func (dp *DataPartition) statusUpdateScheduler() {
-	ticker := time.NewTicker(time.Minute)
-	snapshotTicker := time.NewTicker(time.Minute * 5)
+	timer := initTimer(dp.statusUpdateIntervalSec)
+	snapshotTimer := initTimer(dp.snapshotIntervalSec)
 	var index int
 	for {
 		select {
-		case <-ticker.C:
+		case <-timer.C:
 			dp.statusUpdate()
 			// only repair tiny extent
 			if !dp.isNormalType() {
 				dp.LaunchRepair(proto.TinyExtentType)
+				resetTimer(timer, dp.statusUpdateIntervalSec)
 				continue
 			}
 
@@ -553,11 +589,13 @@ func (dp *DataPartition) statusUpdateScheduler() {
 			} else {
 				dp.LaunchRepair(proto.NormalExtentType)
 			}
-		case <-snapshotTicker.C:
+			resetTimer(timer, dp.statusUpdateIntervalSec)
+		case <-snapshotTimer.C:
 			dp.ReloadSnapshot()
+			resetTimer(snapshotTimer, dp.snapshotIntervalSec)
 		case <-dp.stopC:
-			ticker.Stop()
-			snapshotTicker.Stop()
+			timer.Stop()
+			snapshotTimer.Stop()
 			return
 		}
 	}
@@ -616,7 +654,7 @@ func (dp *DataPartition) actualSize(path string, finfo os.FileInfo) (size int64)
 }
 
 func (dp *DataPartition) computeUsage() {
-	if time.Now().Unix()-dp.intervalToUpdatePartitionSize < IntervalToUpdatePartitionSize {
+	if time.Now().Unix()-dp.intervalToUpdatePartitionSize < dp.updatePartitionSizeInternalSec {
 		return
 	}
 	dp.used = int(dp.ExtentStore().GetStoreUsedSize())
@@ -678,7 +716,7 @@ func (dp *DataPartition) LaunchRepair(extentType uint8) {
 }
 
 func (dp *DataPartition) updateReplicas(isForce bool) (err error) {
-	if !isForce && time.Now().Unix()-dp.intervalToUpdateReplicas <= IntervalToUpdateReplica {
+	if !isForce && time.Now().Unix()-dp.intervalToUpdateReplicas <= dp.updateReplicaIntervalSec {
 		return
 	}
 	dp.isLeader = false
@@ -922,7 +960,6 @@ func (dp *DataPartition) ChangeRaftMember(changeType raftProto.ConfChangeType, p
 	return
 }
 
-//
 func (dp *DataPartition) canRemoveSelf() (canRemove bool, err error) {
 	var partition *proto.DataPartitionInfo
 	if partition, err = MasterClient.AdminAPI().GetDataPartition(dp.volumeID, dp.partitionID); err != nil {
@@ -1163,4 +1200,13 @@ func getWithDefault(base, def int) int {
 	}
 
 	return base
+}
+
+func initTimer(ts int64) *time.Timer {
+	return time.NewTimer(time.Duration(ts+rand.Int63n(RandomIntervalS)) * time.Second)
+}
+
+func resetTimer(timer *time.Timer, ts int64) {
+	rand.Seed(time.Now().UnixNano())
+	timer.Reset(time.Duration(ts+rand.Int63n(RandomIntervalS)) * time.Second)
 }

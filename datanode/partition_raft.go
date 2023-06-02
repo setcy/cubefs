@@ -47,6 +47,12 @@ type dataPartitionCfg struct {
 	NodeID        uint64              `json:"-"`
 	RaftStore     raftstore.RaftStore `json:"-"`
 	ReplicaNum    int
+
+	// configure the interval of scheduled tasks
+	StatusUpdateIntervalSec        int64 `json:"status_update_interval_S"`
+	SnapshotIntervalSec            int64 `json:"snapshot_interval_S"`
+	UpdateReplicaIntervalSec       int64 `json:"update_replica_interval_S"`
+	UpdatePartitionSizeInternalSec int64 `json:"update_partition_size_interval_S"`
 }
 
 func (dp *DataPartition) raftPort() (heartbeat, replica int, err error) {

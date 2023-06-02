@@ -69,6 +69,12 @@ type DataPartition struct {
 	DecommissionSrcDiskPath  string //
 	DecommissionTerm         uint64 // only used for disk decommission
 	IsDiscard                bool
+
+	// interval of scheduled tasks in data partition
+	StatusUpdateIntervalSec        int64
+	SnapshotIntervalSec            int64
+	UpdateReplicaIntervalSec       int64
+	UpdatePartitionSizeInternalSec int64
 }
 
 type DataPartitionPreLoad struct {
@@ -929,26 +935,30 @@ func (partition *DataPartition) buildDpInfo(c *Cluster) *proto.DataPartitionInfo
 	}
 
 	return &proto.DataPartitionInfo{
-		PartitionID:              partition.PartitionID,
-		PartitionTTL:             partition.PartitionTTL,
-		PartitionType:            partition.PartitionType,
-		LastLoadedTime:           partition.LastLoadedTime,
-		ReplicaNum:               partition.ReplicaNum,
-		Status:                   partition.Status,
-		Replicas:                 replicas,
-		Hosts:                    partition.Hosts,
-		Peers:                    partition.Peers,
-		Zones:                    zones,
-		MissingNodes:             partition.MissingNodes,
-		VolName:                  partition.VolName,
-		VolID:                    partition.VolID,
-		FileInCoreMap:            fileInCoreMap,
-		OfflinePeerID:            partition.OfflinePeerID,
-		IsRecover:                partition.isRecover,
-		FilesWithMissingReplica:  partition.FilesWithMissingReplica,
-		SingleDecommissionStatus: partition.SingleDecommissionStatus,
-		SingleDecommissionAddr:   partition.SingleDecommissionAddr,
-		IsDiscard:                partition.IsDiscard,
+		PartitionID:                    partition.PartitionID,
+		PartitionTTL:                   partition.PartitionTTL,
+		PartitionType:                  partition.PartitionType,
+		LastLoadedTime:                 partition.LastLoadedTime,
+		ReplicaNum:                     partition.ReplicaNum,
+		Status:                         partition.Status,
+		Replicas:                       replicas,
+		Hosts:                          partition.Hosts,
+		Peers:                          partition.Peers,
+		Zones:                          zones,
+		MissingNodes:                   partition.MissingNodes,
+		VolName:                        partition.VolName,
+		VolID:                          partition.VolID,
+		FileInCoreMap:                  fileInCoreMap,
+		OfflinePeerID:                  partition.OfflinePeerID,
+		IsRecover:                      partition.isRecover,
+		FilesWithMissingReplica:        partition.FilesWithMissingReplica,
+		SingleDecommissionStatus:       partition.SingleDecommissionStatus,
+		SingleDecommissionAddr:         partition.SingleDecommissionAddr,
+		IsDiscard:                      partition.IsDiscard,
+		StatusUpdateIntervalSec:        partition.StatusUpdateIntervalSec,
+		SnapshotIntervalSec:            partition.SnapshotIntervalSec,
+		UpdatePartitionSizeInternalSec: partition.UpdatePartitionSizeInternalSec,
+		UpdateReplicaIntervalSec:       partition.UpdateReplicaIntervalSec,
 	}
 }
 
