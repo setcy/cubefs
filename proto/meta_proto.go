@@ -41,6 +41,9 @@ type CreateMetaPartitionRequest struct {
 	End         uint64
 	PartitionID uint64
 	Members     []Peer
+	// interval of scheduled tasks in meta partition
+	SyncCursorInternalSec  int64
+	PersistDataInternalSec int64
 }
 
 // CreateMetaPartitionResponse defines the response to the request of creating a meta partition.

@@ -31,18 +31,22 @@ import (
 
 func newCreateDataPartitionRequest(volName string, ID uint64, replicaNum int, members []proto.Peer,
 	dataPartitionSize, leaderSize int, hosts []string, createType int, partitionType int,
-	decommissionedDisks []string) (req *proto.CreateDataPartitionRequest) {
+	decommissionedDisks []string, config *DataPartitionConfig) (req *proto.CreateDataPartitionRequest) {
 	req = &proto.CreateDataPartitionRequest{
-		PartitionTyp:        partitionType,
-		PartitionId:         ID,
-		PartitionSize:       dataPartitionSize,
-		ReplicaNum:          replicaNum,
-		VolumeId:            volName,
-		Members:             members,
-		Hosts:               hosts,
-		CreateType:          createType,
-		LeaderSize:          leaderSize,
-		DecommissionedDisks: decommissionedDisks,
+		PartitionTyp:                     partitionType,
+		PartitionId:                      ID,
+		PartitionSize:                    dataPartitionSize,
+		ReplicaNum:                       replicaNum,
+		VolumeId:                         volName,
+		Members:                          members,
+		Hosts:                            hosts,
+		CreateType:                       createType,
+		LeaderSize:                       leaderSize,
+		DecommissionedDisks:              decommissionedDisks,
+		DpStatusUpdateIntervalSec:        config.StatusUpdateIntervalSec,
+		DpSnapshotIntervalSec:            config.SnapshotIntervalSec,
+		DpUpdateReplicaIntervalSec:       config.UpdateReplicaIntervalSec,
+		DpUpdatePartitionSizeInternalSec: config.UpdatePartitionSizeInternalSec,
 	}
 	return
 }

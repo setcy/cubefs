@@ -1189,6 +1189,7 @@ func (c *Cluster) createDataPartition(volName string, preload *DataPartitionPreL
 		wg           sync.WaitGroup
 		isPreload    bool
 		partitionTTL int64
+		dpConfig     *DataPartitionConfig
 	)
 
 	vol = c.vols[volName]
@@ -1231,6 +1232,12 @@ func (c *Cluster) createDataPartition(volName string, preload *DataPartitionPreL
 	dp = newDataPartition(partitionID, dpReplicaNum, volName, vol.ID, proto.GetDpType(vol.VolType, isPreload), partitionTTL)
 	dp.Hosts = targetHosts
 	dp.Peers = targetPeers
+	dpConfig = &DataPartitionConfig{
+		StatusUpdateIntervalSec:        vol.dpStatusUpdateIntervalSec,
+		SnapshotIntervalSec:            vol.dpSnapshotIntervalSec,
+		UpdateReplicaIntervalSec:       vol.dpUpdateReplicaIntervalSec,
+		UpdatePartitionSizeInternalSec: vol.dpUpdatePartitionSizeInternalSec,
+	}
 
 	log.LogInfof("action[createDataPartition] partitionID [%v] get host [%v]", partitionID, targetHosts)
 
@@ -1244,7 +1251,7 @@ func (c *Cluster) createDataPartition(volName string, preload *DataPartitionPreL
 			var diskPath string
 
 			if diskPath, err = c.syncCreateDataPartitionToDataNode(host, vol.dataPartitionSize,
-				dp, dp.Peers, dp.Hosts, proto.NormalCreateDataPartition, dp.PartitionType); err != nil {
+				dp, dp.Peers, dp.Hosts, proto.NormalCreateDataPartition, dp.PartitionType, dpConfig); err != nil {
 				errChannel <- err
 				return
 			}
@@ -1300,13 +1307,13 @@ errHandler:
 }
 
 func (c *Cluster) syncCreateDataPartitionToDataNode(host string, size uint64, dp *DataPartition,
-	peers []proto.Peer, hosts []string, createType int, partitionType int) (diskPath string, err error) {
+	peers []proto.Peer, hosts []string, createType int, partitionType int, config *DataPartitionConfig) (diskPath string, err error) {
 	log.LogInfof("action[syncCreateDataPartitionToDataNode] dp [%v] createtype[%v], partitionType[%v]", dp.PartitionID, createType, partitionType)
 	dataNode, err := c.dataNode(host)
 	if err != nil {
 		return
 	}
-	task := dp.createTaskToCreateDataPartition(host, size, peers, hosts, createType, partitionType, dataNode.getDecommissionedDisks())
+	task := dp.createTaskToCreateDataPartition(host, size, peers, hosts, createType, partitionType, dataNode.getDecommissionedDisks(), config)
 	var resp *proto.Packet
 	if resp, err = dataNode.TaskManager.syncSendAdminTask(task); err != nil {
 		return
@@ -1314,10 +1321,10 @@ func (c *Cluster) syncCreateDataPartitionToDataNode(host string, size uint64, dp
 	return string(resp.Data), nil
 }
 
-func (c *Cluster) syncCreateMetaPartitionToMetaNode(host string, mp *MetaPartition) (err error) {
+func (c *Cluster) syncCreateMetaPartitionToMetaNode(host string, mp *MetaPartition, config *MetaPartitionConfig) (err error) {
 	hosts := make([]string, 0)
 	hosts = append(hosts, host)
-	tasks := mp.buildNewMetaPartitionTasks(hosts, mp.Peers, mp.volName)
+	tasks := mp.buildNewMetaPartitionTasks(hosts, mp.Peers, mp.volName, config)
 	metaNode, err := c.metaNode(host)
 	if err != nil {
 		return
@@ -2277,8 +2284,15 @@ func (c *Cluster) createDataReplica(dp *DataPartition, addPeer proto.Peer) (err 
 	copy(peers, dp.Peers)
 	dp.RUnlock()
 
+	dpConfig := &DataPartitionConfig{
+		StatusUpdateIntervalSec:        vol.dpStatusUpdateIntervalSec,
+		SnapshotIntervalSec:            vol.dpSnapshotIntervalSec,
+		UpdateReplicaIntervalSec:       vol.dpUpdateReplicaIntervalSec,
+		UpdatePartitionSizeInternalSec: vol.dpUpdatePartitionSizeInternalSec,
+	}
+
 	diskPath, err := c.syncCreateDataPartitionToDataNode(addPeer.Addr, vol.dataPartitionSize,
-		dp, peers, hosts, proto.DecommissionedCreateDataPartition, dp.PartitionType)
+		dp, peers, hosts, proto.DecommissionedCreateDataPartition, dp.PartitionType, dpConfig)
 	if err != nil {
 		return
 	}

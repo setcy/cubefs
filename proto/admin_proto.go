@@ -358,6 +358,12 @@ type CreateDataPartitionRequest struct {
 	CreateType          int
 	LeaderSize          int
 	DecommissionedDisks []string
+
+	// interval of scheduled tasks in data partition
+	DpStatusUpdateIntervalSec        int64
+	DpSnapshotIntervalSec            int64
+	DpUpdateReplicaIntervalSec       int64
+	DpUpdatePartitionSizeInternalSec int64
 }
 
 // CreateDataPartitionResponse defines the response to the request of creating a data partition.

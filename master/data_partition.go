@@ -69,12 +69,6 @@ type DataPartition struct {
 	DecommissionSrcDiskPath  string //
 	DecommissionTerm         uint64 // only used for disk decommission
 	IsDiscard                bool
-
-	// interval of scheduled tasks in data partition
-	StatusUpdateIntervalSec        int64
-	SnapshotIntervalSec            int64
-	UpdateReplicaIntervalSec       int64
-	UpdatePartitionSizeInternalSec int64
 }
 
 type DataPartitionPreLoad struct {
@@ -82,6 +76,14 @@ type DataPartitionPreLoad struct {
 	preloadCacheCapacity int
 	preloadReplicaNum    int
 	preloadZoneName      string
+}
+
+type DataPartitionConfig struct {
+	// interval of scheduled tasks in data partition
+	StatusUpdateIntervalSec        int64
+	SnapshotIntervalSec            int64
+	UpdateReplicaIntervalSec       int64
+	UpdatePartitionSizeInternalSec int64
 }
 
 func (d *DataPartitionPreLoad) toString() string {
@@ -264,7 +266,7 @@ func (partition *DataPartition) createTaskToRemoveRaftMember(c *Cluster, removeP
 }
 
 func (partition *DataPartition) createTaskToCreateDataPartition(addr string, dataPartitionSize uint64,
-	peers []proto.Peer, hosts []string, createType int, partitionType int, decommissionedDisks []string) (task *proto.AdminTask) {
+	peers []proto.Peer, hosts []string, createType int, partitionType int, decommissionedDisks []string, config *DataPartitionConfig) (task *proto.AdminTask) {
 
 	leaderSize := 0
 	if createType == proto.DecommissionedCreateDataPartition {
@@ -273,7 +275,7 @@ func (partition *DataPartition) createTaskToCreateDataPartition(addr string, dat
 
 	task = proto.NewAdminTask(proto.OpCreateDataPartition, addr, newCreateDataPartitionRequest(
 		partition.VolName, partition.PartitionID, int(partition.ReplicaNum),
-		peers, int(dataPartitionSize), leaderSize, hosts, createType, partitionType, decommissionedDisks))
+		peers, int(dataPartitionSize), leaderSize, hosts, createType, partitionType, decommissionedDisks, config))
 
 	partition.resetTaskID(task)
 	return
@@ -935,30 +937,26 @@ func (partition *DataPartition) buildDpInfo(c *Cluster) *proto.DataPartitionInfo
 	}
 
 	return &proto.DataPartitionInfo{
-		PartitionID:                    partition.PartitionID,
-		PartitionTTL:                   partition.PartitionTTL,
-		PartitionType:                  partition.PartitionType,
-		LastLoadedTime:                 partition.LastLoadedTime,
-		ReplicaNum:                     partition.ReplicaNum,
-		Status:                         partition.Status,
-		Replicas:                       replicas,
-		Hosts:                          partition.Hosts,
-		Peers:                          partition.Peers,
-		Zones:                          zones,
-		MissingNodes:                   partition.MissingNodes,
-		VolName:                        partition.VolName,
-		VolID:                          partition.VolID,
-		FileInCoreMap:                  fileInCoreMap,
-		OfflinePeerID:                  partition.OfflinePeerID,
-		IsRecover:                      partition.isRecover,
-		FilesWithMissingReplica:        partition.FilesWithMissingReplica,
-		SingleDecommissionStatus:       partition.SingleDecommissionStatus,
-		SingleDecommissionAddr:         partition.SingleDecommissionAddr,
-		IsDiscard:                      partition.IsDiscard,
-		StatusUpdateIntervalSec:        partition.StatusUpdateIntervalSec,
-		SnapshotIntervalSec:            partition.SnapshotIntervalSec,
-		UpdatePartitionSizeInternalSec: partition.UpdatePartitionSizeInternalSec,
-		UpdateReplicaIntervalSec:       partition.UpdateReplicaIntervalSec,
+		PartitionID:              partition.PartitionID,
+		PartitionTTL:             partition.PartitionTTL,
+		PartitionType:            partition.PartitionType,
+		LastLoadedTime:           partition.LastLoadedTime,
+		ReplicaNum:               partition.ReplicaNum,
+		Status:                   partition.Status,
+		Replicas:                 replicas,
+		Hosts:                    partition.Hosts,
+		Peers:                    partition.Peers,
+		Zones:                    zones,
+		MissingNodes:             partition.MissingNodes,
+		VolName:                  partition.VolName,
+		VolID:                    partition.VolID,
+		FileInCoreMap:            fileInCoreMap,
+		OfflinePeerID:            partition.OfflinePeerID,
+		IsRecover:                partition.isRecover,
+		FilesWithMissingReplica:  partition.FilesWithMissingReplica,
+		SingleDecommissionStatus: partition.SingleDecommissionStatus,
+		SingleDecommissionAddr:   partition.SingleDecommissionAddr,
+		IsDiscard:                partition.IsDiscard,
 	}
 }
 

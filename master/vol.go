@@ -1153,6 +1153,7 @@ func (vol *Vol) doCreateMetaPartition(c *Cluster, start, end uint64) (mp *MetaPa
 		partitionID uint64
 		peers       []proto.Peer
 		wg          sync.WaitGroup
+		mpConfig    *MetaPartitionConfig
 	)
 
 	errChannel := make(chan error, vol.mpReplicaNum)
@@ -1182,6 +1183,10 @@ func (vol *Vol) doCreateMetaPartition(c *Cluster, start, end uint64) (mp *MetaPa
 	mp = newMetaPartition(partitionID, start, end, vol.mpReplicaNum, vol.Name, vol.ID)
 	mp.setHosts(hosts)
 	mp.setPeers(peers)
+	mpConfig = &MetaPartitionConfig{
+		SyncCursorInternalSec:  vol.mpSyncCursorInternalSec,
+		PersistDataInternalSec: vol.mpPersistDataInternalSec,
+	}
 
 	for _, host := range hosts {
 		wg.Add(1)
@@ -1189,7 +1194,7 @@ func (vol *Vol) doCreateMetaPartition(c *Cluster, start, end uint64) (mp *MetaPa
 			defer func() {
 				wg.Done()
 			}()
-			if err = c.syncCreateMetaPartitionToMetaNode(host, mp); err != nil {
+			if err = c.syncCreateMetaPartitionToMetaNode(host, mp, mpConfig); err != nil {
 				errChannel <- err
 				return
 			}

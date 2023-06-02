@@ -319,16 +319,20 @@ func (manager *SpaceManager) CreatePartition(request *proto.CreateDataPartitionR
 	manager.partitionMutex.Lock()
 	defer manager.partitionMutex.Unlock()
 	dpCfg := &dataPartitionCfg{
-		PartitionID:   request.PartitionId,
-		VolName:       request.VolumeId,
-		Peers:         request.Members,
-		Hosts:         request.Hosts,
-		RaftStore:     manager.raftStore,
-		NodeID:        manager.nodeID,
-		ClusterID:     manager.clusterID,
-		PartitionSize: request.PartitionSize,
-		PartitionType: int(request.PartitionTyp),
-		ReplicaNum:    request.ReplicaNum,
+		PartitionID:                    request.PartitionId,
+		VolName:                        request.VolumeId,
+		Peers:                          request.Members,
+		Hosts:                          request.Hosts,
+		RaftStore:                      manager.raftStore,
+		NodeID:                         manager.nodeID,
+		ClusterID:                      manager.clusterID,
+		PartitionSize:                  request.PartitionSize,
+		PartitionType:                  int(request.PartitionTyp),
+		ReplicaNum:                     request.ReplicaNum,
+		StatusUpdateIntervalSec:        request.DpStatusUpdateIntervalSec,
+		SnapshotIntervalSec:            request.DpSnapshotIntervalSec,
+		UpdateReplicaIntervalSec:       request.DpUpdateReplicaIntervalSec,
+		UpdatePartitionSizeInternalSec: request.DpUpdatePartitionSizeInternalSec,
 	}
 	dp = manager.partitions[dpCfg.PartitionID]
 	if dp != nil {

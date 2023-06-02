@@ -69,7 +69,9 @@ type MetaPartition struct {
 	uidInfo          []*proto.UidReportSpaceInfo
 	EqualCheckPass   bool
 	sync.RWMutex
+}
 
+type MetaPartitionConfig struct {
 	// interval of scheduled tasks in meta partition
 	SyncCursorInternalSec  int64
 	PersistDataInternalSec int64
@@ -582,15 +584,17 @@ func (mp *MetaPartition) replicaCreationTasks(clusterID, volName string) (tasks 
 	return
 }
 
-func (mp *MetaPartition) buildNewMetaPartitionTasks(specifyAddrs []string, peers []proto.Peer, volName string) (tasks []*proto.AdminTask) {
+func (mp *MetaPartition) buildNewMetaPartitionTasks(specifyAddrs []string, peers []proto.Peer, volName string, config *MetaPartitionConfig) (tasks []*proto.AdminTask) {
 	tasks = make([]*proto.AdminTask, 0)
 	hosts := make([]string, 0)
 	req := &proto.CreateMetaPartitionRequest{
-		Start:       mp.Start,
-		End:         mp.End,
-		PartitionID: mp.PartitionID,
-		Members:     peers,
-		VolName:     volName,
+		Start:                  mp.Start,
+		End:                    mp.End,
+		PartitionID:            mp.PartitionID,
+		Members:                peers,
+		VolName:                volName,
+		SyncCursorInternalSec:  config.SyncCursorInternalSec,
+		PersistDataInternalSec: config.PersistDataInternalSec,
 	}
 	if specifyAddrs == nil {
 		hosts = mp.Hosts
