@@ -16,12 +16,15 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/cubefs/cubefs/sdk/master"
-	"github.com/cubefs/cubefs/util/fake"
-	"github.com/spf13/cobra"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
+
+	"github.com/spf13/cobra"
+	"github.com/stretchr/testify/assert"
+
+	"github.com/cubefs/cubefs/proto"
+	"github.com/cubefs/cubefs/sdk/master"
+	"github.com/cubefs/cubefs/util/fake"
 )
 
 const (
@@ -143,11 +146,21 @@ func TestRootCmd(t *testing.T) {
 		},
 	}
 
-	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
-		switch p, m := req.URL.Path, req.Method; {
+	successV1 := &proto.AclRsp{
+		OK: true,
+		List: []*proto.AclIpInfo{
+			{
+				Ip:    "192.168.0.1",
+				CTime: 1689091200,
+			},
+		},
+	}
 
-		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch m, p := req.Method, req.URL.Path; {
+
+		case m == http.MethodGet && p == "/admin/aclOp":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
