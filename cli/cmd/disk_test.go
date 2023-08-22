@@ -39,12 +39,15 @@ func TestListBadDiskCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
+	successV1 := &proto.BadDiskInfos{
+		BadDisks: []proto.BadDiskInfo{
 			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
+				Address: "172.16.1.101:17310",
+				Path:    "/test1",
+			},
+			{
+				Address: "172.16.1.102:17310",
+				Path:    "/test2",
 			},
 		},
 	}
@@ -52,8 +55,8 @@ func TestListBadDiskCmd(t *testing.T) {
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/disk/queryBadDisks":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(successV1)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)

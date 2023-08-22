@@ -17,6 +17,7 @@ package cmd
 import (
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 
@@ -49,21 +50,36 @@ func TestDataPartitionGetCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
-			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
-			},
-		},
+	successV1 := &proto.DataPartitionInfo{
+		PartitionID:              0,
+		PartitionTTL:             0,
+		PartitionType:            0,
+		LastLoadedTime:           0,
+		ReplicaNum:               0,
+		Status:                   0,
+		Recover:                  false,
+		Replicas:                 []*proto.DataReplica{},
+		Hosts:                    []string{},
+		Peers:                    []proto.Peer{},
+		Zones:                    []string{},
+		MissingNodes:             map[string]int64{},
+		VolName:                  "",
+		VolID:                    0,
+		OfflinePeerID:            0,
+		FileInCoreMap:            map[string]*proto.FileInCore{},
+		IsRecover:                false,
+		FilesWithMissingReplica:  map[string]int64{},
+		SingleDecommissionStatus: 0,
+		SingleDecommissionAddr:   "",
+		RdOnly:                   false,
+		IsDiscard:                false,
 	}
 
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/dataPartition/get":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(successV1)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -84,21 +100,85 @@ func TestListCorruptDataPartitionCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
+	diagnosisV1 := &proto.DataPartitionDiagnosis{
+		InactiveDataNodes:           []string{"172.16.1.101:17310", "172.16.1.102:17310"},
+		CorruptDataPartitionIDs:     []uint64{1, 2},
+		LackReplicaDataPartitionIDs: []uint64{1, 2},
+		BadDataPartitionIDs: []proto.BadPartitionView{
 			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
+				Path:         "/test1",
+				PartitionIDs: []uint64{1, 2},
+			},
+			{
+				Path:         "/test2",
+				PartitionIDs: []uint64{3, 4},
 			},
 		},
+		BadReplicaDataPartitionIDs: []uint64{1, 2},
+		RepFileCountDifferDpIDs:    []uint64{1, 2},
+		RepUsedSizeDifferDpIDs:     []uint64{1, 2},
+		ExcessReplicaDpIDs:         []uint64{1, 2},
+	}
+
+	dataNodeV1 := &proto.DataNodeInfo{
+		Total:                     0,
+		Used:                      0,
+		AvailableSpace:            0,
+		ID:                        0,
+		ZoneName:                  "",
+		Addr:                      "",
+		DomainAddr:                "",
+		ReportTime:                time.Time{},
+		IsActive:                  false,
+		IsWriteAble:               false,
+		UsageRatio:                0,
+		SelectedTimes:             0,
+		Carry:                     0,
+		DataPartitionReports:      []*proto.PartitionReport{},
+		DataPartitionCount:        0,
+		NodeSetID:                 0,
+		PersistenceDataPartitions: []uint64{},
+		BadDisks:                  []string{},
+		RdOnly:                    false,
+		MaxDpCntLimit:             0,
+	}
+
+	dataPartitionV1 := &proto.DataPartitionInfo{
+		PartitionID:              0,
+		PartitionTTL:             0,
+		PartitionType:            0,
+		LastLoadedTime:           0,
+		ReplicaNum:               0,
+		Status:                   0,
+		Recover:                  false,
+		Replicas:                 []*proto.DataReplica{},
+		Hosts:                    []string{},
+		Peers:                    []proto.Peer{},
+		Zones:                    []string{},
+		MissingNodes:             map[string]int64{},
+		VolName:                  "",
+		VolID:                    0,
+		OfflinePeerID:            0,
+		FileInCoreMap:            map[string]*proto.FileInCore{},
+		IsRecover:                false,
+		FilesWithMissingReplica:  map[string]int64{},
+		SingleDecommissionStatus: 0,
+		SingleDecommissionAddr:   "",
+		RdOnly:                   false,
+		IsDiscard:                false,
 	}
 
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/dataPartition/diagnose":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(diagnosisV1)}, nil
+
+		case m == http.MethodGet && p == "/dataNode/get":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(dataNodeV1)}, nil
+
+		case m == http.MethodGet && p == "/dataPartition/get":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(dataPartitionV1)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -134,21 +214,11 @@ func TestDataPartitionDecommissionCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
-			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
-			},
-		},
-	}
-
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/dataPartition/decommission":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(nil)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -184,21 +254,11 @@ func TestDataPartitionReplicateCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
-			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
-			},
-		},
-	}
-
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/dataReplica/add":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(nil)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -234,21 +294,11 @@ func TestDataPartitionDeleteReplicaCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
-			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
-			},
-		},
-	}
-
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/dataReplica/delete":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(nil)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -269,12 +319,31 @@ func TestDataPartitionGetDiscardCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
+	successV1 := &proto.DiscardDataPartitionInfos{
+		DiscardDps: []proto.DataPartitionInfo{
 			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
+				PartitionID:              1,
+				PartitionTTL:             0,
+				PartitionType:            0,
+				LastLoadedTime:           0,
+				ReplicaNum:               0,
+				Status:                   0,
+				Recover:                  false,
+				Replicas:                 []*proto.DataReplica{},
+				Hosts:                    []string{},
+				Peers:                    []proto.Peer{},
+				Zones:                    []string{},
+				MissingNodes:             map[string]int64{},
+				VolName:                  "",
+				VolID:                    0,
+				OfflinePeerID:            0,
+				FileInCoreMap:            map[string]*proto.FileInCore{},
+				IsRecover:                false,
+				FilesWithMissingReplica:  map[string]int64{},
+				SingleDecommissionStatus: 0,
+				SingleDecommissionAddr:   "",
+				RdOnly:                   false,
+				IsDiscard:                false,
 			},
 		},
 	}
@@ -282,8 +351,8 @@ func TestDataPartitionGetDiscardCmd(t *testing.T) {
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/admin/getDiscardDp":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(successV1)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)

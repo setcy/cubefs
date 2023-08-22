@@ -58,7 +58,7 @@ func TestAclAddCmd(t *testing.T) {
 		switch m, p := req.Method, req.URL.Path; {
 
 		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(successV1)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -93,7 +93,7 @@ func TestAclListCmd(t *testing.T) {
 		switch m, p := req.Method, req.URL.Path; {
 
 		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(successV1)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -133,7 +133,7 @@ func TestAclDelCmd(t *testing.T) {
 		switch m, p := req.Method, req.URL.Path; {
 
 		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(successV1)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -173,7 +173,7 @@ func TestAclCheckCmd(t *testing.T) {
 		switch m, p := req.Method, req.URL.Path; {
 
 		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(successV1)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)

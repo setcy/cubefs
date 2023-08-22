@@ -17,6 +17,7 @@ package cmd
 import (
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 
@@ -39,12 +40,28 @@ func TestMetaNodeListCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
+	successV1 := &proto.ClusterView{
+		MetaNodes: []proto.NodeView{
 			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
+				Addr:       "172.16.1.101:17210",
+				Status:     false,
+				DomainAddr: "",
+				ID:         2,
+				IsWritable: true,
+			},
+			{
+				Addr:       "172.16.1.102:17210",
+				Status:     false,
+				DomainAddr: "",
+				ID:         3,
+				IsWritable: true,
+			},
+			{
+				Addr:       "172.16.1.103:17210",
+				Status:     false,
+				DomainAddr: "",
+				ID:         4,
+				IsWritable: true,
 			},
 		},
 	}
@@ -52,8 +69,8 @@ func TestMetaNodeListCmd(t *testing.T) {
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/admin/getCluster":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(successV1)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -79,21 +96,32 @@ func TestMetaNodeInfoCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
-			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
-			},
-		},
+	successV1 := &proto.MetaNodeInfo{
+		ID:                        0,
+		Addr:                      "",
+		DomainAddr:                "",
+		IsActive:                  false,
+		IsWriteAble:               false,
+		ZoneName:                  "",
+		MaxMemAvailWeight:         0,
+		Total:                     0,
+		Used:                      0,
+		Ratio:                     0,
+		SelectCount:               0,
+		Carry:                     0,
+		Threshold:                 0,
+		ReportTime:                time.Time{},
+		MetaPartitionCount:        0,
+		NodeSetID:                 0,
+		PersistenceMetaPartitions: nil,
+		RdOnly:                    false,
 	}
 
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/metaNode/get":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(successV1)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -124,21 +152,11 @@ func TestMetaNodeDecommissionCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
-			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
-			},
-		},
-	}
-
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/metaNode/decommission":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(nil)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -179,21 +197,11 @@ func TestMetaNodeMigrateCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
-			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
-			},
-		},
-	}
-
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/metaNode/migrate":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(nil)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)

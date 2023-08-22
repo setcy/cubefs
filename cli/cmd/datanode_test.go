@@ -17,6 +17,7 @@ package cmd
 import (
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 
@@ -39,12 +40,28 @@ func TestDataNodeListCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
+	successV1 := &proto.ClusterView{
+		DataNodes: []proto.NodeView{
 			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
+				Addr:       "172.16.1.101:17310",
+				Status:     false,
+				DomainAddr: "",
+				ID:         2,
+				IsWritable: false,
+			},
+			{
+				Addr:       "172.16.1.102:17310",
+				Status:     false,
+				DomainAddr: "",
+				ID:         3,
+				IsWritable: false,
+			},
+			{
+				Addr:       "172.16.1.103:17310",
+				Status:     false,
+				DomainAddr: "",
+				ID:         4,
+				IsWritable: false,
 			},
 		},
 	}
@@ -52,8 +69,8 @@ func TestDataNodeListCmd(t *testing.T) {
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/admin/getCluster":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(successV1)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -79,21 +96,34 @@ func TestDataNodeInfoCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
-			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
-			},
-		},
+	successV1 := &proto.DataNodeInfo{
+		Total:                     0,
+		Used:                      0,
+		AvailableSpace:            0,
+		ID:                        0,
+		ZoneName:                  "",
+		Addr:                      "",
+		DomainAddr:                "",
+		ReportTime:                time.Time{},
+		IsActive:                  false,
+		IsWriteAble:               false,
+		UsageRatio:                0,
+		SelectedTimes:             0,
+		Carry:                     0,
+		DataPartitionReports:      []*proto.PartitionReport{},
+		DataPartitionCount:        0,
+		NodeSetID:                 0,
+		PersistenceDataPartitions: []uint64{},
+		BadDisks:                  []string{},
+		RdOnly:                    false,
+		MaxDpCntLimit:             0,
 	}
 
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/dataNode/get":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(successV1)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -124,21 +154,11 @@ func TestDataNodeDecommissionCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
-			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
-			},
-		},
-	}
-
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/dataNode/decommission":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(nil)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -179,21 +199,11 @@ func TestDataNodeMigrateCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
-			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
-			},
-		},
-	}
-
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/dataNode/migrate":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(nil)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)

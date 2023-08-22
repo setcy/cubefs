@@ -39,21 +39,129 @@ func TestClusterInfoCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
+	clusterV1 := &proto.ClusterView{
+		Name:               "cfs_dev",
+		CreateTime:         "2023-04-29 16:59:54",
+		LeaderAddr:         "172.16.1.101:17010",
+		DisableAutoAlloc:   false,
+		MetaNodeThreshold:  0.75,
+		Applied:            123,
+		MaxDataPartitionID: 20,
+		MaxMetaNodeID:      20,
+		MaxMetaPartitionID: 3,
+		DataNodeStatInfo: &proto.NodeStatInfo{
+			TotalGB:     215,
+			UsedGB:      177,
+			IncreasedGB: 0,
+			UsedRatio:   "0.826",
+		},
+		MetaNodeStatInfo: &proto.NodeStatInfo{
+			TotalGB:     9,
+			UsedGB:      0,
+			IncreasedGB: 0,
+			UsedRatio:   "0.037",
+		},
+		VolStatInfo: []*proto.VolStatInfo{
 			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
+				Name:                  "vol1",
+				TotalSize:             107374182400,
+				UsedSize:              0,
+				UsedRatio:             "0.000",
+				CacheTotalSize:        0,
+				CacheUsedSize:         0,
+				CacheUsedRatio:        "0.00",
+				EnableToken:           false,
+				InodeCount:            1,
+				DpReadOnlyWhenVolFull: false,
+			},
+		},
+		BadPartitionIDs:     []proto.BadPartitionView{},
+		BadMetaPartitionIDs: []proto.BadPartitionView{},
+		MasterNodes: []proto.NodeView{
+			{
+				Addr:       "172.16.1.101:17010",
+				Status:     true,
+				DomainAddr: "",
+				ID:         1,
+				IsWritable: false,
+			},
+			{
+				Addr:       "172.16.1.102:17010",
+				Status:     true,
+				DomainAddr: "",
+				ID:         2,
+				IsWritable: false,
+			},
+			{
+				Addr:       "172.16.1.103:17010",
+				Status:     true,
+				DomainAddr: "",
+				ID:         3,
+				IsWritable: false,
+			},
+		},
+		MetaNodes: []proto.NodeView{
+			{
+				Addr:       "172.16.1.101:17210",
+				Status:     false,
+				DomainAddr: "",
+				ID:         2,
+				IsWritable: true,
+			},
+			{
+				Addr:       "172.16.1.102:17210",
+				Status:     false,
+				DomainAddr: "",
+				ID:         3,
+				IsWritable: true,
+			},
+			{
+				Addr:       "172.16.1.103:17210",
+				Status:     false,
+				DomainAddr: "",
+				ID:         4,
+				IsWritable: true,
+			},
+		},
+		DataNodes: []proto.NodeView{
+			{
+				Addr:       "172.16.1.101:17310",
+				Status:     false,
+				DomainAddr: "",
+				ID:         2,
+				IsWritable: false,
+			},
+			{
+				Addr:       "172.16.1.102:17310",
+				Status:     false,
+				DomainAddr: "",
+				ID:         3,
+				IsWritable: false,
+			},
+			{
+				Addr:       "172.16.1.103:17310",
+				Status:     false,
+				DomainAddr: "",
+				ID:         4,
+				IsWritable: false,
 			},
 		},
 	}
 
+	nodeV1 := &proto.ClusterNodeInfo{}
+
+	ipV1 := &proto.ClusterIP{}
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/admin/getCluster":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(clusterV1)}, nil
+
+		case m == http.MethodGet && p == "/admin/getNodeInfo":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(nodeV1)}, nil
+
+		case m == http.MethodGet && p == "/admin/getIp":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(ipV1)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -74,21 +182,17 @@ func TestClusterStatCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
-			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
-			},
-		},
+	successV1 := &proto.ClusterStatInfo{
+		DataNodeStatInfo: &proto.NodeStatInfo{},
+		MetaNodeStatInfo: &proto.NodeStatInfo{},
+		ZoneStatInfo:     map[string]*proto.ZoneStat{},
 	}
 
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/cluster/stat":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(successV1)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -119,21 +223,11 @@ func TestClusterFreezeCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
-			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
-			},
-		},
-	}
-
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/cluster/freeze":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(nil)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -169,21 +263,11 @@ func TestClusterSetThresholdCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
-			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
-			},
-		},
-	}
-
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/threshold/set":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(nil)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -204,21 +288,11 @@ func TestClusterSetParasCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
-			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
-			},
-		},
-	}
-
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/admin/setNodeInfo":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(nil)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -244,21 +318,11 @@ func TestClusterDisableMpDecommissionCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
-			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
-			},
-		},
-	}
-
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/cluster/forbidMetaPartitionDecommission":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(nil)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)

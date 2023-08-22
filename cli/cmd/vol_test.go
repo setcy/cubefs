@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"net/http"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -39,21 +40,23 @@ func TestVolListCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
-			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
-			},
+	successV1 := []*proto.VolInfo{
+		{
+			Name:                  "vol1",
+			Owner:                 "cfs",
+			CreateTime:            0,
+			Status:                0,
+			TotalSize:             0,
+			UsedSize:              0,
+			DpReadOnlyWhenVolFull: false,
 		},
 	}
 
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/vol/list":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(successV1)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -84,21 +87,11 @@ func TestVolCreateCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
-			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
-			},
-		},
-	}
-
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/admin/createVol":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(nil)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -149,21 +142,38 @@ func TestVolUpdateCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
-			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
-			},
-		},
+	volumeV1 := &proto.SimpleVolView{
+		ID:                      1,
+		Name:                    "vol1",
+		Owner:                   "user1",
+		ZoneName:                "zone1",
+		DpReplicaNum:            3,
+		MpReplicaNum:            3,
+		InodeCount:              1,
+		DentryCount:             0,
+		MaxMetaPartitionID:      3,
+		Status:                  0,
+		Capacity:                100,
+		RwDpCnt:                 6,
+		MpCnt:                   3,
+		DpCnt:                   20,
+		CreateTime:              "2023-04-29 17:27:17",
+		EnableTransaction:       "create|mkdir",
+		TxTimeout:               1,
+		TxConflictRetryNum:      10,
+		TxConflictRetryInterval: 20,
+		VolType:                 1,
+		Uids:                    nil,
 	}
 
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/admin/getVol":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(volumeV1)}, nil
+
+		case m == http.MethodGet && p == "/vol/update":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(nil)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -194,12 +204,59 @@ func TestVolInfoCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
+	volumeV1 := &proto.SimpleVolView{
+		ID:                      1,
+		Name:                    "vol1",
+		Owner:                   "user1",
+		ZoneName:                "zone1",
+		DpReplicaNum:            3,
+		MpReplicaNum:            3,
+		InodeCount:              1,
+		DentryCount:             0,
+		MaxMetaPartitionID:      3,
+		Status:                  0,
+		Capacity:                100,
+		RwDpCnt:                 6,
+		MpCnt:                   3,
+		DpCnt:                   20,
+		CreateTime:              "2023-04-29 17:27:17",
+		EnableTransaction:       "create|mkdir",
+		TxTimeout:               1,
+		TxConflictRetryNum:      10,
+		TxConflictRetryInterval: 20,
+		VolType:                 1,
+		Uids:                    nil,
+	}
+
+	metaPartitionV1 := []*proto.MetaPartitionView{
+		{
+			PartitionID: 1,
+			Start:       0,
+			End:         0,
+			MaxInodeID:  0,
+			InodeCount:  0,
+			DentryCount: 0,
+			FreeListLen: 0,
+			IsRecover:   false,
+			Members:     []string{},
+			LeaderAddr:  "",
+			Status:      0,
+		},
+	}
+
+	dataPartitionV1 := &proto.DataPartitionsView{
+		DataPartitions: []*proto.DataPartitionResponse{
 			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
+				PartitionType: 0,
+				PartitionID:   1,
+				Status:        0,
+				ReplicaNum:    0,
+				Hosts:         []string{},
+				LeaderAddr:    "",
+				Epoch:         0,
+				IsRecover:     false,
+				PartitionTTL:  0,
+				IsDiscard:     false,
 			},
 		},
 	}
@@ -207,8 +264,14 @@ func TestVolInfoCmd(t *testing.T) {
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/admin/getVol":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(volumeV1)}, nil
+
+		case m == http.MethodGet && p == "/client/metaPartitions":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(metaPartitionV1)}, nil
+
+		case m == http.MethodGet && p == "/client/partitions":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(dataPartitionV1)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -239,21 +302,38 @@ func TestVolDeleteCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
-			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
-			},
-		},
+	successV1 := &proto.SimpleVolView{
+		ID:                      1,
+		Name:                    "vol1",
+		Owner:                   "user1",
+		ZoneName:                "zone1",
+		DpReplicaNum:            3,
+		MpReplicaNum:            3,
+		InodeCount:              1,
+		DentryCount:             0,
+		MaxMetaPartitionID:      3,
+		Status:                  0,
+		Capacity:                100,
+		RwDpCnt:                 6,
+		MpCnt:                   3,
+		DpCnt:                   20,
+		CreateTime:              "2023-04-29 17:27:17",
+		EnableTransaction:       "create|mkdir",
+		TxTimeout:               1,
+		TxConflictRetryNum:      10,
+		TxConflictRetryInterval: 20,
+		VolType:                 1,
+		Uids:                    nil,
 	}
 
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/admin/getVol":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(successV1)}, nil
+
+		case m == http.MethodGet && p == "/vol/delete":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(nil)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -289,21 +369,56 @@ func TestVolTransferCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
-			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
-			},
+	volumeV1 := &proto.SimpleVolView{
+		ID:                      1,
+		Name:                    "vol1",
+		Owner:                   "user1",
+		ZoneName:                "zone1",
+		DpReplicaNum:            3,
+		MpReplicaNum:            3,
+		InodeCount:              1,
+		DentryCount:             0,
+		MaxMetaPartitionID:      3,
+		Status:                  0,
+		Capacity:                100,
+		RwDpCnt:                 6,
+		MpCnt:                   3,
+		DpCnt:                   20,
+		CreateTime:              "2023-04-29 17:27:17",
+		EnableTransaction:       "create|mkdir",
+		TxTimeout:               1,
+		TxConflictRetryNum:      10,
+		TxConflictRetryInterval: 20,
+		VolType:                 1,
+		Uids:                    nil,
+	}
+
+	userV1 := &proto.UserInfo{
+		UserID:    "user1",
+		AccessKey: "key1",
+		SecretKey: "key2",
+		Policy: &proto.UserPolicy{
+			OwnVols:        []string{"vol1", "vol2"},
+			AuthorizedVols: map[string][]string{"vol1": {"vol1"}},
 		},
+		UserType:    0,
+		CreateTime:  "",
+		Description: "",
+		Mu:          sync.RWMutex{},
+		EMPTY:       false,
 	}
 
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/admin/getVol":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(volumeV1)}, nil
+
+		case m == http.MethodGet && p == "/user/info":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(userV1)}, nil
+
+		case m == http.MethodPost && p == "/user/transferVol":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(nil)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -344,21 +459,38 @@ func TestVolAddDPCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
-			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
-			},
-		},
+	volumeV1 := &proto.SimpleVolView{
+		ID:                      1,
+		Name:                    "vol1",
+		Owner:                   "user1",
+		ZoneName:                "zone1",
+		DpReplicaNum:            3,
+		MpReplicaNum:            3,
+		InodeCount:              1,
+		DentryCount:             0,
+		MaxMetaPartitionID:      3,
+		Status:                  0,
+		Capacity:                100,
+		RwDpCnt:                 6,
+		MpCnt:                   3,
+		DpCnt:                   20,
+		CreateTime:              "2023-04-29 17:27:17",
+		EnableTransaction:       "create|mkdir",
+		TxTimeout:               1,
+		TxConflictRetryNum:      10,
+		TxConflictRetryInterval: 20,
+		VolType:                 1,
+		Uids:                    nil,
 	}
 
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/admin/getVol":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(volumeV1)}, nil
+
+		case m == http.MethodGet && p == "/dataPartition/create":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(nil)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -399,21 +531,38 @@ func TestVolExpandCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
-			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
-			},
-		},
+	volumeV1 := &proto.SimpleVolView{
+		ID:                      1,
+		Name:                    "vol1",
+		Owner:                   "user1",
+		ZoneName:                "zone1",
+		DpReplicaNum:            3,
+		MpReplicaNum:            3,
+		InodeCount:              1,
+		DentryCount:             0,
+		MaxMetaPartitionID:      3,
+		Status:                  0,
+		Capacity:                100,
+		RwDpCnt:                 6,
+		MpCnt:                   3,
+		DpCnt:                   20,
+		CreateTime:              "2023-04-29 17:27:17",
+		EnableTransaction:       "create|mkdir",
+		TxTimeout:               1,
+		TxConflictRetryNum:      10,
+		TxConflictRetryInterval: 20,
+		VolType:                 1,
+		Uids:                    nil,
 	}
 
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/admin/getVol":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(volumeV1)}, nil
+
+		case m == http.MethodGet && p == "/vol/expand":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(nil)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -454,21 +603,38 @@ func TestVolShrinkCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
-			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
-			},
-		},
+	volumeV1 := &proto.SimpleVolView{
+		ID:                      1,
+		Name:                    "vol1",
+		Owner:                   "user1",
+		ZoneName:                "zone1",
+		DpReplicaNum:            3,
+		MpReplicaNum:            3,
+		InodeCount:              1,
+		DentryCount:             0,
+		MaxMetaPartitionID:      3,
+		Status:                  0,
+		Capacity:                100,
+		RwDpCnt:                 6,
+		MpCnt:                   3,
+		DpCnt:                   20,
+		CreateTime:              "2023-04-29 17:27:17",
+		EnableTransaction:       "create|mkdir",
+		TxTimeout:               1,
+		TxConflictRetryNum:      10,
+		TxConflictRetryInterval: 20,
+		VolType:                 1,
+		Uids:                    nil,
 	}
 
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/admin/getVol":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(volumeV1)}, nil
+
+		case m == http.MethodGet && p == "/vol/shrink":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(nil)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)

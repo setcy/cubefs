@@ -17,6 +17,7 @@ package cmd
 import (
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 
@@ -49,21 +50,80 @@ func TestMetaPartitionGetCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
+	successV1 := &proto.MetaPartitionInfo{
+		PartitionID: 0,
+		Start:       0,
+		End:         0,
+		MaxInodeID:  0,
+		InodeCount:  0,
+		DentryCount: 0,
+		VolName:     "",
+		Replicas: []*proto.MetaReplicaInfo{
 			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
+				Addr:        "172.16.1.101:17210",
+				DomainAddr:  "172.16.1.101:17210",
+				MaxInodeID:  0,
+				ReportTime:  0,
+				Status:      0,
+				IsLeader:    false,
+				InodeCount:  0,
+				MaxInode:    0,
+				DentryCount: 0,
+			},
+			{
+				Addr:        "172.16.1.102:17210",
+				DomainAddr:  "172.16.1.102:17210",
+				MaxInodeID:  0,
+				ReportTime:  0,
+				Status:      0,
+				IsLeader:    true,
+				InodeCount:  0,
+				MaxInode:    0,
+				DentryCount: 0,
+			},
+			{
+				Addr:        "172.16.1.103:17210",
+				DomainAddr:  "172.16.1.103:17210",
+				MaxInodeID:  0,
+				ReportTime:  0,
+				Status:      0,
+				IsLeader:    false,
+				InodeCount:  0,
+				MaxInode:    0,
+				DentryCount: 0,
 			},
 		},
+		ReplicaNum: 0,
+		Status:     0,
+		IsRecover:  false,
+		Hosts:      []string{"172.16.1.101:17210", "172.16.1.102:17210", "172.16.1.103:17210"},
+		Peers: []proto.Peer{
+			{
+				ID:   1,
+				Addr: "172.16.1.101:17210",
+			},
+			{
+				ID:   2,
+				Addr: "172.16.1.102:17210",
+			},
+			{
+				ID:   3,
+				Addr: "172.16.1.103:17210",
+			},
+		},
+		Zones:         []string{"default", "default", "default"},
+		OfflinePeerID: 0,
+		MissNodes: map[string]int64{
+			"172.16.1.103:17210": 1690280680,
+		},
+		LoadResponse: []*proto.MetaPartitionLoadResponse{},
 	}
 
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/metaPartition/get":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(successV1)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -84,21 +144,128 @@ func TestListCorruptMetaPartitionCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
+	diagnoseV1 := &proto.MetaPartitionDiagnosis{
+		InactiveMetaNodes:           []string{"172.16.1.101:17310", "172.16.1.102:17310"},
+		CorruptMetaPartitionIDs:     []uint64{1, 2},
+		LackReplicaMetaPartitionIDs: []uint64{1, 2},
+		BadMetaPartitionIDs: []proto.BadPartitionView{
 			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
+				Path:         "/test1",
+				PartitionIDs: []uint64{1, 2},
+			},
+			{
+				Path:         "/test2",
+				PartitionIDs: []uint64{3, 4},
 			},
 		},
+		BadReplicaMetaPartitionIDs:                 []uint64{1, 2},
+		ExcessReplicaMetaPartitionIDs:              []uint64{1, 2},
+		InodeCountNotEqualReplicaMetaPartitionIDs:  []uint64{1, 2},
+		MaxInodeNotEqualReplicaMetaPartitionIDs:    []uint64{1, 2},
+		DentryCountNotEqualReplicaMetaPartitionIDs: []uint64{1, 2},
+	}
+
+	metanodeV1 := &proto.MetaNodeInfo{
+		ID:                        0,
+		Addr:                      "",
+		DomainAddr:                "",
+		IsActive:                  false,
+		IsWriteAble:               false,
+		ZoneName:                  "",
+		MaxMemAvailWeight:         0,
+		Total:                     0,
+		Used:                      0,
+		Ratio:                     0,
+		SelectCount:               0,
+		Carry:                     0,
+		Threshold:                 0,
+		ReportTime:                time.Time{},
+		MetaPartitionCount:        0,
+		NodeSetID:                 0,
+		PersistenceMetaPartitions: nil,
+		RdOnly:                    false,
+	}
+
+	metaPartitionV1 := &proto.MetaPartitionInfo{
+		PartitionID: 0,
+		Start:       0,
+		End:         0,
+		MaxInodeID:  0,
+		InodeCount:  0,
+		DentryCount: 0,
+		VolName:     "",
+		Replicas: []*proto.MetaReplicaInfo{
+			{
+				Addr:        "172.16.1.101:17210",
+				DomainAddr:  "172.16.1.101:17210",
+				MaxInodeID:  0,
+				ReportTime:  0,
+				Status:      0,
+				IsLeader:    false,
+				InodeCount:  0,
+				MaxInode:    0,
+				DentryCount: 0,
+			},
+			{
+				Addr:        "172.16.1.102:17210",
+				DomainAddr:  "172.16.1.102:17210",
+				MaxInodeID:  0,
+				ReportTime:  0,
+				Status:      0,
+				IsLeader:    true,
+				InodeCount:  0,
+				MaxInode:    0,
+				DentryCount: 0,
+			},
+			{
+				Addr:        "172.16.1.103:17210",
+				DomainAddr:  "172.16.1.103:17210",
+				MaxInodeID:  0,
+				ReportTime:  0,
+				Status:      0,
+				IsLeader:    false,
+				InodeCount:  0,
+				MaxInode:    0,
+				DentryCount: 0,
+			},
+		},
+		ReplicaNum: 0,
+		Status:     0,
+		IsRecover:  false,
+		Hosts:      []string{"172.16.1.101:17210", "172.16.1.102:17210", "172.16.1.103:17210"},
+		Peers: []proto.Peer{
+			{
+				ID:   1,
+				Addr: "172.16.1.101:17210",
+			},
+			{
+				ID:   2,
+				Addr: "172.16.1.102:17210",
+			},
+			{
+				ID:   3,
+				Addr: "172.16.1.103:17210",
+			},
+		},
+		Zones:         []string{"default", "default", "default"},
+		OfflinePeerID: 0,
+		MissNodes: map[string]int64{
+			"172.16.1.103:17210": 1690280680,
+		},
+		LoadResponse: []*proto.MetaPartitionLoadResponse{},
 	}
 
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/metaPartition/diagnose":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(diagnoseV1)}, nil
+
+		case m == http.MethodGet && p == "/metaNode/get":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(metanodeV1)}, nil
+
+		case m == http.MethodGet && p == "/metaPartition/get":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(metaPartitionV1)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -134,21 +301,11 @@ func TestMetaPartitionDecommissionCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
-			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
-			},
-		},
-	}
-
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/metaPartition/decommission":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(nil)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -184,21 +341,11 @@ func TestMetaPartitionReplicateCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
-			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
-			},
-		},
-	}
-
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/metaReplica/add":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(nil)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -234,56 +381,11 @@ func TestMetaPartitionDeleteReplicaCmd(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
-			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
-			},
-		},
-	}
-
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
-
-		default:
-			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
-			return nil, nil
-		}
-	})
-
-	r := newCliTestRunner().setHttpClient(fakeClient)
-	r.runTestCases(t, testCases)
-}
-
-func TestMetaPartitionGetDiscardCmd(t *testing.T) {
-	testCases := []*TestCase{
-		{
-			name:      "Valid arguments",
-			args:      []string{"metapartition", "get-discard"},
-			expectErr: false,
-		},
-	}
-
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
-			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
-			},
-		},
-	}
-
-	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
-		switch m, p := req.Method, req.URL.Path; {
-
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/metaReplica/delete":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(nil)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)

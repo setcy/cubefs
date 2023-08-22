@@ -20,7 +20,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/cubefs/cubefs/proto"
 	"github.com/cubefs/cubefs/util/fake"
 )
 
@@ -34,28 +33,18 @@ func TestConfigSetCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"config", "set", "--addr", "172.16.1.101:17010"},
+			args:      []string{"--addr", "172.16.1.101:17010"},
 			expectErr: false,
 		},
 		{
 			name:      "missing addr",
-			args:      []string{"config", "set"},
+			args:      []string{},
 			expectErr: true,
 		},
 		{
 			name:      "zero timeout",
-			args:      []string{"config", "set", "--addr", "172.16.1.101:17010", "--timeout", "0"},
+			args:      []string{"--addr", "172.16.1.101:17010", "--timeout", "0"},
 			expectErr: true,
-		},
-	}
-
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
-			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
-			},
 		},
 	}
 
@@ -63,7 +52,7 @@ func TestConfigSetCmd(t *testing.T) {
 		switch m, p := req.Method, req.URL.Path; {
 
 		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(nil)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -71,7 +60,7 @@ func TestConfigSetCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("cluster", "freeze")
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("config", "set")
 	r.runTestCases(t, testCases)
 }
 

@@ -39,12 +39,33 @@ func TestZoneList(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
-			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
+	successV1 := []*proto.ZoneView{
+		{
+			Name:   "zone1",
+			Status: "available",
+			NodeSet: map[uint64]*proto.NodeSetView{
+				1: {
+					DataNodeLen: 3,
+					MetaNodeLen: 3,
+					MetaNodes: []proto.NodeView{
+						{
+							Addr:       "172.16.1.101:17210",
+							Status:     false,
+							DomainAddr: "172.16.1.101:17010",
+							ID:         1,
+							IsWritable: false,
+						},
+					},
+					DataNodes: []proto.NodeView{
+						{
+							Addr:       "172.16.1.101:17310",
+							Status:     false,
+							DomainAddr: "172.16.1.101:17010",
+							ID:         1,
+							IsWritable: false,
+						},
+					},
+				},
 			},
 		},
 	}
@@ -52,8 +73,8 @@ func TestZoneList(t *testing.T) {
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/zone/list":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(successV1)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
@@ -79,12 +100,35 @@ func TestZoneInfo(t *testing.T) {
 		},
 	}
 
-	successV1 := &proto.AclRsp{
-		OK: true,
-		List: []*proto.AclIpInfo{
+	successV1 := &proto.TopologyView{
+		Zones: []*proto.ZoneView{
 			{
-				Ip:    "192.168.0.1",
-				CTime: 1689091200,
+				Name:   "zone1",
+				Status: "available",
+				NodeSet: map[uint64]*proto.NodeSetView{
+					1: {
+						DataNodeLen: 3,
+						MetaNodeLen: 3,
+						MetaNodes: []proto.NodeView{
+							{
+								Addr:       "172.16.1.101:17210",
+								Status:     false,
+								DomainAddr: "172.16.1.101:17010",
+								ID:         1,
+								IsWritable: false,
+							},
+						},
+						DataNodes: []proto.NodeView{
+							{
+								Addr:       "172.16.1.101:17310",
+								Status:     false,
+								DomainAddr: "172.16.1.101:17010",
+								ID:         1,
+								IsWritable: false,
+							},
+						},
+					},
+				},
 			},
 		},
 	}
@@ -92,8 +136,8 @@ func TestZoneInfo(t *testing.T) {
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch m, p := req.Method, req.URL.Path; {
 
-		case m == http.MethodGet && p == "/admin/aclOp":
-			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.JsonBody(successV1)}, nil
+		case m == http.MethodGet && p == "/topo/get":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader(), Body: fake.SuccessJsonBody(successV1)}, nil
 
 		default:
 			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)

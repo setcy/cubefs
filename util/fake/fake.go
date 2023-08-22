@@ -19,7 +19,7 @@ func (f roundTripperFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 	return f(req)
 }
 
-func JsonBody(data interface{}) io.ReadCloser {
+func SuccessJsonBody(data interface{}) io.ReadCloser {
 	respWrapper := struct {
 		Code int32
 		Msg  string
