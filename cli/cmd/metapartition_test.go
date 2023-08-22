@@ -35,62 +35,37 @@ func TestMetaPartitionGetCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"metapartition", "info", "1"},
+			args:      []string{"1"},
 			expectErr: false,
 		},
 		{
 			name:      "Missing arguments",
-			args:      []string{"metapartition", "info"},
+			args:      []string{},
 			expectErr: true,
 		},
 		{
 			name:      "Invalid arguments",
-			args:      []string{"metapartition", "info", "t"},
+			args:      []string{"t"},
 			expectErr: true,
 		},
 	}
 
 	successV1 := &proto.MetaPartitionInfo{
-		PartitionID: 0,
-		Start:       0,
-		End:         0,
-		MaxInodeID:  0,
-		InodeCount:  0,
-		DentryCount: 0,
-		VolName:     "",
 		Replicas: []*proto.MetaReplicaInfo{
 			{
-				Addr:        "172.16.1.101:17210",
-				DomainAddr:  "172.16.1.101:17210",
-				MaxInodeID:  0,
-				ReportTime:  0,
-				Status:      0,
-				IsLeader:    false,
-				InodeCount:  0,
-				MaxInode:    0,
-				DentryCount: 0,
+				Addr:       "172.16.1.101:17210",
+				DomainAddr: "172.16.1.101:17210",
+				IsLeader:   false,
 			},
 			{
-				Addr:        "172.16.1.102:17210",
-				DomainAddr:  "172.16.1.102:17210",
-				MaxInodeID:  0,
-				ReportTime:  0,
-				Status:      0,
-				IsLeader:    true,
-				InodeCount:  0,
-				MaxInode:    0,
-				DentryCount: 0,
+				Addr:       "172.16.1.102:17210",
+				DomainAddr: "172.16.1.102:17210",
+				IsLeader:   true,
 			},
 			{
-				Addr:        "172.16.1.103:17210",
-				DomainAddr:  "172.16.1.103:17210",
-				MaxInodeID:  0,
-				ReportTime:  0,
-				Status:      0,
-				IsLeader:    false,
-				InodeCount:  0,
-				MaxInode:    0,
-				DentryCount: 0,
+				Addr:       "172.16.1.103:17210",
+				DomainAddr: "172.16.1.103:17210",
+				IsLeader:   false,
 			},
 		},
 		ReplicaNum: 0,
@@ -131,7 +106,7 @@ func TestMetaPartitionGetCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("metapartition", "info")
 	r.runTestCases(t, testCases)
 }
 
@@ -139,7 +114,7 @@ func TestListCorruptMetaPartitionCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"metapartition", "check"},
+			args:      []string{},
 			expectErr: false,
 		},
 	}
@@ -166,67 +141,25 @@ func TestListCorruptMetaPartitionCmd(t *testing.T) {
 	}
 
 	metanodeV1 := &proto.MetaNodeInfo{
-		ID:                        0,
-		Addr:                      "",
-		DomainAddr:                "",
-		IsActive:                  false,
-		IsWriteAble:               false,
-		ZoneName:                  "",
-		MaxMemAvailWeight:         0,
-		Total:                     0,
-		Used:                      0,
-		Ratio:                     0,
-		SelectCount:               0,
-		Carry:                     0,
-		Threshold:                 0,
-		ReportTime:                time.Time{},
-		MetaPartitionCount:        0,
-		NodeSetID:                 0,
-		PersistenceMetaPartitions: nil,
-		RdOnly:                    false,
+		ReportTime: time.Time{},
 	}
 
 	metaPartitionV1 := &proto.MetaPartitionInfo{
-		PartitionID: 0,
-		Start:       0,
-		End:         0,
-		MaxInodeID:  0,
-		InodeCount:  0,
-		DentryCount: 0,
-		VolName:     "",
 		Replicas: []*proto.MetaReplicaInfo{
 			{
-				Addr:        "172.16.1.101:17210",
-				DomainAddr:  "172.16.1.101:17210",
-				MaxInodeID:  0,
-				ReportTime:  0,
-				Status:      0,
-				IsLeader:    false,
-				InodeCount:  0,
-				MaxInode:    0,
-				DentryCount: 0,
+				Addr:       "172.16.1.101:17210",
+				DomainAddr: "172.16.1.101:17210",
+				IsLeader:   false,
 			},
 			{
-				Addr:        "172.16.1.102:17210",
-				DomainAddr:  "172.16.1.102:17210",
-				MaxInodeID:  0,
-				ReportTime:  0,
-				Status:      0,
-				IsLeader:    true,
-				InodeCount:  0,
-				MaxInode:    0,
-				DentryCount: 0,
+				Addr:       "172.16.1.102:17210",
+				DomainAddr: "172.16.1.102:17210",
+				IsLeader:   true,
 			},
 			{
-				Addr:        "172.16.1.103:17210",
-				DomainAddr:  "172.16.1.103:17210",
-				MaxInodeID:  0,
-				ReportTime:  0,
-				Status:      0,
-				IsLeader:    false,
-				InodeCount:  0,
-				MaxInode:    0,
-				DentryCount: 0,
+				Addr:       "172.16.1.103:17210",
+				DomainAddr: "172.16.1.103:17210",
+				IsLeader:   false,
 			},
 		},
 		ReplicaNum: 0,
@@ -273,7 +206,7 @@ func TestListCorruptMetaPartitionCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("metapartition", "check")
 	r.runTestCases(t, testCases)
 }
 
@@ -281,22 +214,22 @@ func TestMetaPartitionDecommissionCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"metapartition", "decommission", "172.16.1.101:17310", "1"},
+			args:      []string{"172.16.1.101:17310", "1"},
 			expectErr: false,
 		},
 		{
 			name:      "Missing 1 arguments",
-			args:      []string{"metapartition", "decommission", "172.16.1.101:17310"},
+			args:      []string{"172.16.1.101:17310"},
 			expectErr: true,
 		},
 		{
 			name:      "Missing 2 arguments",
-			args:      []string{"metapartition", "decommission"},
+			args:      []string{},
 			expectErr: true,
 		},
 		{
 			name:      "Invalid arguments",
-			args:      []string{"metapartition", "decommission", "172.16.1.101:17310", "t"},
+			args:      []string{"172.16.1.101:17310", "t"},
 			expectErr: true,
 		},
 	}
@@ -313,7 +246,7 @@ func TestMetaPartitionDecommissionCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("metapartition", "decommission")
 	r.runTestCases(t, testCases)
 }
 
@@ -321,22 +254,22 @@ func TestMetaPartitionReplicateCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"metapartition", "add-replica", "172.16.1.101:17310", "1"},
+			args:      []string{"172.16.1.101:17310", "1"},
 			expectErr: false,
 		},
 		{
 			name:      "Missing 1 arguments",
-			args:      []string{"metapartition", "add-replica", "172.16.1.101:17310"},
+			args:      []string{"172.16.1.101:17310"},
 			expectErr: true,
 		},
 		{
 			name:      "Missing 2 arguments",
-			args:      []string{"metapartition", "add-replica"},
+			args:      []string{},
 			expectErr: true,
 		},
 		{
 			name:      "Invalid arguments",
-			args:      []string{"metapartition", "add-replica", "172.16.1.101:17310", "t"},
+			args:      []string{"172.16.1.101:17310", "t"},
 			expectErr: true,
 		},
 	}
@@ -353,7 +286,7 @@ func TestMetaPartitionReplicateCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("metapartition", "add-replica")
 	r.runTestCases(t, testCases)
 }
 
@@ -361,22 +294,22 @@ func TestMetaPartitionDeleteReplicaCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"metapartition", "del-replica", "172.16.1.101:17310", "1"},
+			args:      []string{"172.16.1.101:17310", "1"},
 			expectErr: false,
 		},
 		{
 			name:      "Missing 1 arguments",
-			args:      []string{"metapartition", "del-replica", "172.16.1.101:17310"},
+			args:      []string{"172.16.1.101:17310"},
 			expectErr: true,
 		},
 		{
 			name:      "Missing 2 arguments",
-			args:      []string{"metapartition", "del-replica"},
+			args:      []string{},
 			expectErr: true,
 		},
 		{
 			name:      "Invalid arguments",
-			args:      []string{"metapartition", "del-replica", "172.16.1.101:17310", "t"},
+			args:      []string{"172.16.1.101:17310", "t"},
 			expectErr: true,
 		},
 	}
@@ -393,6 +326,6 @@ func TestMetaPartitionDeleteReplicaCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("metapartition", "del-replica")
 	r.runTestCases(t, testCases)
 }

@@ -35,44 +35,29 @@ func TestDataPartitionGetCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"datapartition", "info", "1"},
+			args:      []string{"1"},
 			expectErr: false,
 		},
 		{
 			name:      "Missing arguments",
-			args:      []string{"datapartition", "info"},
+			args:      []string{},
 			expectErr: true,
 		},
 		{
 			name:      "Invalid arguments",
-			args:      []string{"datapartition", "info", "t"},
+			args:      []string{"t"},
 			expectErr: true,
 		},
 	}
 
 	successV1 := &proto.DataPartitionInfo{
-		PartitionID:              0,
-		PartitionTTL:             0,
-		PartitionType:            0,
-		LastLoadedTime:           0,
-		ReplicaNum:               0,
-		Status:                   0,
-		Recover:                  false,
-		Replicas:                 []*proto.DataReplica{},
-		Hosts:                    []string{},
-		Peers:                    []proto.Peer{},
-		Zones:                    []string{},
-		MissingNodes:             map[string]int64{},
-		VolName:                  "",
-		VolID:                    0,
-		OfflinePeerID:            0,
-		FileInCoreMap:            map[string]*proto.FileInCore{},
-		IsRecover:                false,
-		FilesWithMissingReplica:  map[string]int64{},
-		SingleDecommissionStatus: 0,
-		SingleDecommissionAddr:   "",
-		RdOnly:                   false,
-		IsDiscard:                false,
+		Replicas:                []*proto.DataReplica{},
+		Hosts:                   []string{},
+		Peers:                   []proto.Peer{},
+		Zones:                   []string{},
+		MissingNodes:            map[string]int64{},
+		FileInCoreMap:           map[string]*proto.FileInCore{},
+		FilesWithMissingReplica: map[string]int64{},
 	}
 
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
@@ -87,7 +72,7 @@ func TestDataPartitionGetCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("datapartition", "info")
 	r.runTestCases(t, testCases)
 }
 
@@ -95,7 +80,7 @@ func TestListCorruptDataPartitionCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"datapartition", "check"},
+			args:      []string{},
 			expectErr: false,
 		},
 	}
@@ -121,51 +106,20 @@ func TestListCorruptDataPartitionCmd(t *testing.T) {
 	}
 
 	dataNodeV1 := &proto.DataNodeInfo{
-		Total:                     0,
-		Used:                      0,
-		AvailableSpace:            0,
-		ID:                        0,
-		ZoneName:                  "",
-		Addr:                      "",
-		DomainAddr:                "",
 		ReportTime:                time.Time{},
-		IsActive:                  false,
-		IsWriteAble:               false,
-		UsageRatio:                0,
-		SelectedTimes:             0,
-		Carry:                     0,
 		DataPartitionReports:      []*proto.PartitionReport{},
-		DataPartitionCount:        0,
-		NodeSetID:                 0,
 		PersistenceDataPartitions: []uint64{},
 		BadDisks:                  []string{},
-		RdOnly:                    false,
-		MaxDpCntLimit:             0,
 	}
 
 	dataPartitionV1 := &proto.DataPartitionInfo{
-		PartitionID:              0,
-		PartitionTTL:             0,
-		PartitionType:            0,
-		LastLoadedTime:           0,
-		ReplicaNum:               0,
-		Status:                   0,
-		Recover:                  false,
-		Replicas:                 []*proto.DataReplica{},
-		Hosts:                    []string{},
-		Peers:                    []proto.Peer{},
-		Zones:                    []string{},
-		MissingNodes:             map[string]int64{},
-		VolName:                  "",
-		VolID:                    0,
-		OfflinePeerID:            0,
-		FileInCoreMap:            map[string]*proto.FileInCore{},
-		IsRecover:                false,
-		FilesWithMissingReplica:  map[string]int64{},
-		SingleDecommissionStatus: 0,
-		SingleDecommissionAddr:   "",
-		RdOnly:                   false,
-		IsDiscard:                false,
+		Replicas:                []*proto.DataReplica{},
+		Hosts:                   []string{},
+		Peers:                   []proto.Peer{},
+		Zones:                   []string{},
+		MissingNodes:            map[string]int64{},
+		FileInCoreMap:           map[string]*proto.FileInCore{},
+		FilesWithMissingReplica: map[string]int64{},
 	}
 
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
@@ -186,7 +140,7 @@ func TestListCorruptDataPartitionCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("datapartition", "check")
 	r.runTestCases(t, testCases)
 }
 
@@ -194,22 +148,22 @@ func TestDataPartitionDecommissionCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"datapartition", "decommission", "172.16.1.101:17310", "1"},
+			args:      []string{"172.16.1.101:17310", "1"},
 			expectErr: false,
 		},
 		{
 			name:      "Missing 1 arguments",
-			args:      []string{"datapartition", "decommission", "172.16.1.101:17310"},
+			args:      []string{"172.16.1.101:17310"},
 			expectErr: true,
 		},
 		{
 			name:      "Missing 2 arguments",
-			args:      []string{"datapartition", "decommission"},
+			args:      []string{},
 			expectErr: true,
 		},
 		{
 			name:      "Invalid arguments",
-			args:      []string{"datapartition", "decommission", "172.16.1.101:17310", "t"},
+			args:      []string{"172.16.1.101:17310", "t"},
 			expectErr: true,
 		},
 	}
@@ -226,7 +180,7 @@ func TestDataPartitionDecommissionCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("datapartition", "decommission")
 	r.runTestCases(t, testCases)
 }
 
@@ -234,22 +188,22 @@ func TestDataPartitionReplicateCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"datapartition", "add-replica", "172.16.1.101:17310", "1"},
+			args:      []string{"172.16.1.101:17310", "1"},
 			expectErr: false,
 		},
 		{
 			name:      "Missing 1 arguments",
-			args:      []string{"datapartition", "add-replica", "172.16.1.101:17310"},
+			args:      []string{"172.16.1.101:17310"},
 			expectErr: true,
 		},
 		{
 			name:      "Missing 2 arguments",
-			args:      []string{"datapartition", "add-replica"},
+			args:      []string{},
 			expectErr: true,
 		},
 		{
 			name:      "Invalid arguments",
-			args:      []string{"datapartition", "add-replica", "172.16.1.101:17310", "t"},
+			args:      []string{"172.16.1.101:17310", "t"},
 			expectErr: true,
 		},
 	}
@@ -266,7 +220,7 @@ func TestDataPartitionReplicateCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("datapartition", "add-replica")
 	r.runTestCases(t, testCases)
 }
 
@@ -274,22 +228,22 @@ func TestDataPartitionDeleteReplicaCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"datapartition", "del-replica", "172.16.1.101:17310", "1"},
+			args:      []string{"172.16.1.101:17310", "1"},
 			expectErr: false,
 		},
 		{
 			name:      "Missing 1 arguments",
-			args:      []string{"datapartition", "del-replica", "172.16.1.101:17310"},
+			args:      []string{"172.16.1.101:17310"},
 			expectErr: true,
 		},
 		{
 			name:      "Missing 2 arguments",
-			args:      []string{"datapartition", "del-replica"},
+			args:      []string{},
 			expectErr: true,
 		},
 		{
 			name:      "Invalid arguments",
-			args:      []string{"datapartition", "del-replica", "172.16.1.101:17310", "t"},
+			args:      []string{"172.16.1.101:17310", "t"},
 			expectErr: true,
 		},
 	}
@@ -306,7 +260,7 @@ func TestDataPartitionDeleteReplicaCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("datapartition", "del-replica")
 	r.runTestCases(t, testCases)
 }
 
@@ -314,7 +268,7 @@ func TestDataPartitionGetDiscardCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"datapartition", "get-discard"},
+			args:      []string{},
 			expectErr: false,
 		},
 	}
@@ -322,28 +276,14 @@ func TestDataPartitionGetDiscardCmd(t *testing.T) {
 	successV1 := &proto.DiscardDataPartitionInfos{
 		DiscardDps: []proto.DataPartitionInfo{
 			{
-				PartitionID:              1,
-				PartitionTTL:             0,
-				PartitionType:            0,
-				LastLoadedTime:           0,
-				ReplicaNum:               0,
-				Status:                   0,
-				Recover:                  false,
-				Replicas:                 []*proto.DataReplica{},
-				Hosts:                    []string{},
-				Peers:                    []proto.Peer{},
-				Zones:                    []string{},
-				MissingNodes:             map[string]int64{},
-				VolName:                  "",
-				VolID:                    0,
-				OfflinePeerID:            0,
-				FileInCoreMap:            map[string]*proto.FileInCore{},
-				IsRecover:                false,
-				FilesWithMissingReplica:  map[string]int64{},
-				SingleDecommissionStatus: 0,
-				SingleDecommissionAddr:   "",
-				RdOnly:                   false,
-				IsDiscard:                false,
+				PartitionID:             1,
+				Replicas:                []*proto.DataReplica{},
+				Hosts:                   []string{},
+				Peers:                   []proto.Peer{},
+				Zones:                   []string{},
+				MissingNodes:            map[string]int64{},
+				FileInCoreMap:           map[string]*proto.FileInCore{},
+				FilesWithMissingReplica: map[string]int64{},
 			},
 		},
 	}
@@ -359,6 +299,6 @@ func TestDataPartitionGetDiscardCmd(t *testing.T) {
 			return nil, nil
 		}
 	})
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("datapartition", "get-discard")
 	r.runTestCases(t, testCases)
 }

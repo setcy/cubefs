@@ -34,12 +34,12 @@ func TestQuotaListCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"quota", "list", "vol1"},
+			args:      []string{"vol1"},
 			expectErr: false,
 		},
 		{
 			name:      "Missing arguments",
-			args:      []string{"quota", "list"},
+			args:      []string{},
 			expectErr: true,
 		},
 	}
@@ -93,7 +93,7 @@ func TestQuotaListCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("quota", "list")
 	r.runTestCases(t, testCases)
 }
 
@@ -101,7 +101,7 @@ func TestQuotaListAllCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"quota", "listAll"},
+			args:      []string{},
 			expectErr: false,
 		},
 	}
@@ -130,7 +130,7 @@ func TestQuotaListAllCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("quota", "listAll")
 	r.runTestCases(t, testCases)
 }
 
@@ -138,17 +138,17 @@ func TestQuotaUpdateCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"quota", "update", "vol1", "1"},
+			args:      []string{"vol1", "1"},
 			expectErr: false,
 		},
 		{
 			name:      "Missing 1 arguments",
-			args:      []string{"quota", "update", "vol1"},
+			args:      []string{"vol1"},
 			expectErr: true,
 		},
 		{
 			name:      "Missing 2 arguments",
-			args:      []string{"quota", "update"},
+			args:      []string{},
 			expectErr: true,
 		},
 	}
@@ -180,7 +180,7 @@ func TestQuotaUpdateCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("quota", "update")
 	r.runTestCases(t, testCases)
 }
 
@@ -188,17 +188,17 @@ func TestQuotaDeleteCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"quota", "delete", "vol1", "1"},
+			args:      []string{"vol1", "1"},
 			expectErr: false,
 		},
 		{
 			name:      "Missing 1 arguments",
-			args:      []string{"quota", "delete", "vol1"},
+			args:      []string{"vol1"},
 			expectErr: true,
 		},
 		{
 			name:      "Missing 2 arguments",
-			args:      []string{"quota", "delete"},
+			args:      []string{},
 			expectErr: true,
 		},
 	}
@@ -215,6 +215,6 @@ func TestQuotaDeleteCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("quota", "delete")
 	r.runTestCases(t, testCases)
 }

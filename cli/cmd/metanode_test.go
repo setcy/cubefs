@@ -86,35 +86,18 @@ func TestMetaNodeInfoCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"metanode", "info", "172.16.1.110:17320"},
+			args:      []string{"172.16.1.110:17320"},
 			expectErr: false,
 		},
 		{
 			name:      "Missing arguments",
-			args:      []string{"metanode", "info"},
+			args:      []string{},
 			expectErr: true,
 		},
 	}
 
 	successV1 := &proto.MetaNodeInfo{
-		ID:                        0,
-		Addr:                      "",
-		DomainAddr:                "",
-		IsActive:                  false,
-		IsWriteAble:               false,
-		ZoneName:                  "",
-		MaxMemAvailWeight:         0,
-		Total:                     0,
-		Used:                      0,
-		Ratio:                     0,
-		SelectCount:               0,
-		Carry:                     0,
-		Threshold:                 0,
-		ReportTime:                time.Time{},
-		MetaPartitionCount:        0,
-		NodeSetID:                 0,
-		PersistenceMetaPartitions: nil,
-		RdOnly:                    false,
+		ReportTime: time.Time{},
 	}
 
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
@@ -129,7 +112,7 @@ func TestMetaNodeInfoCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("metanode", "info")
 	r.runTestCases(t, testCases)
 }
 
@@ -137,17 +120,17 @@ func TestMetaNodeDecommissionCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"metanode", "decommission", "172.16.1.110:17320", "--count", "1"},
+			args:      []string{"172.16.1.110:17320", "--count", "1"},
 			expectErr: false,
 		},
 		{
 			name:      "Missing node address",
-			args:      []string{"metanode", "decommission"},
+			args:      []string{},
 			expectErr: true,
 		},
 		{
 			name:      "Invalid migrate dp count",
-			args:      []string{"metanode", "decommission", "172.16.1.110:17320", "--count", "-1"},
+			args:      []string{"172.16.1.110:17320", "--count", "-1"},
 			expectErr: true,
 		},
 	}
@@ -164,7 +147,7 @@ func TestMetaNodeDecommissionCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("metanode", "decommission")
 	r.runTestCases(t, testCases)
 }
 
@@ -172,27 +155,27 @@ func TestMetaNodeMigrateCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"metanode", "migrate", "172.16.1.101:17210", "172.16.1.101:17210"},
+			args:      []string{"172.16.1.101:17210", "172.16.1.101:17210"},
 			expectErr: false,
 		},
 		{
 			name:      "Missing 1 node address",
-			args:      []string{"metanode", "migrate", "172.16.1.101:17320"},
+			args:      []string{"172.16.1.101:17320"},
 			expectErr: true,
 		},
 		{
 			name:      "Missing 2 node address",
-			args:      []string{"metanode", "migrate"},
+			args:      []string{},
 			expectErr: true,
 		},
 		{
 			name:      "invalid migrate dp count",
-			args:      []string{"metanode", "migrate", "172.16.1.101:17210", "172.16.1.101:17210", "--count", "-1"},
+			args:      []string{"172.16.1.101:17210", "172.16.1.101:17210", "--count", "-1"},
 			expectErr: true,
 		},
 		{
 			name:      "too much migrate dp count",
-			args:      []string{"metanode", "migrate", "172.16.1.101:17210", "172.16.1.101:17210", "--count", "500"},
+			args:      []string{"172.16.1.101:17210", "172.16.1.101:17210", "--count", "500"},
 			expectErr: true,
 		},
 	}
@@ -209,6 +192,6 @@ func TestMetaNodeMigrateCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("metanode", "migrate")
 	r.runTestCases(t, testCases)
 }

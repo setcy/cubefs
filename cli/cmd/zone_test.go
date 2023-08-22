@@ -34,7 +34,7 @@ func TestZoneList(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"zone", "list"},
+			args:      []string{},
 			expectErr: false,
 		},
 	}
@@ -82,7 +82,7 @@ func TestZoneList(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("zone", "list")
 	r.runTestCases(t, testCases)
 }
 
@@ -90,12 +90,12 @@ func TestZoneInfo(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"zone", "info", "zone1"},
+			args:      []string{"zone1"},
 			expectErr: false,
 		},
 		{
 			name:      "Missing arguments",
-			args:      []string{"zone", "info"},
+			args:      []string{},
 			expectErr: true,
 		},
 	}
@@ -145,6 +145,6 @@ func TestZoneInfo(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("zone", "info")
 	r.runTestCases(t, testCases)
 }

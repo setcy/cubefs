@@ -86,37 +86,21 @@ func TestDataNodeInfoCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"datanode", "info", "172.16.1.110:17310"},
+			args:      []string{"172.16.1.110:17310"},
 			expectErr: false,
 		},
 		{
 			name:      "Missing arguments",
-			args:      []string{"datanode", "info"},
+			args:      []string{},
 			expectErr: true,
 		},
 	}
 
 	successV1 := &proto.DataNodeInfo{
-		Total:                     0,
-		Used:                      0,
-		AvailableSpace:            0,
-		ID:                        0,
-		ZoneName:                  "",
-		Addr:                      "",
-		DomainAddr:                "",
 		ReportTime:                time.Time{},
-		IsActive:                  false,
-		IsWriteAble:               false,
-		UsageRatio:                0,
-		SelectedTimes:             0,
-		Carry:                     0,
 		DataPartitionReports:      []*proto.PartitionReport{},
-		DataPartitionCount:        0,
-		NodeSetID:                 0,
 		PersistenceDataPartitions: []uint64{},
 		BadDisks:                  []string{},
-		RdOnly:                    false,
-		MaxDpCntLimit:             0,
 	}
 
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
@@ -131,7 +115,7 @@ func TestDataNodeInfoCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("datanode", "info")
 	r.runTestCases(t, testCases)
 }
 
@@ -139,17 +123,17 @@ func TestDataNodeDecommissionCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"datanode", "decommission", "172.16.1.110:17310", "--count", "1"},
+			args:      []string{"172.16.1.110:17310", "--count", "1"},
 			expectErr: false,
 		},
 		{
 			name:      "Missing node address",
-			args:      []string{"datanode", "decommission"},
+			args:      []string{},
 			expectErr: true,
 		},
 		{
 			name:      "Invalid migrate dp count",
-			args:      []string{"datanode", "decommission", "172.16.1.110:17310", "--count", "-1"},
+			args:      []string{"172.16.1.110:17310", "--count", "-1"},
 			expectErr: true,
 		},
 	}
@@ -166,7 +150,7 @@ func TestDataNodeDecommissionCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("datanode", "decommission")
 	r.runTestCases(t, testCases)
 }
 
@@ -174,27 +158,27 @@ func TestDataNodeMigrateCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"datanode", "migrate", "172.16.1.110:17310", "172.16.1.110:17310"},
+			args:      []string{"172.16.1.110:17310", "172.16.1.110:17310"},
 			expectErr: false,
 		},
 		{
 			name:      "Missing 1 node address",
-			args:      []string{"datanode", "migrate", "172.16.1.110:17310"},
+			args:      []string{"172.16.1.110:17310"},
 			expectErr: true,
 		},
 		{
 			name:      "Missing 2 node address",
-			args:      []string{"datanode", "migrate"},
+			args:      []string{},
 			expectErr: true,
 		},
 		{
 			name:      "invalid migrate dp count",
-			args:      []string{"datanode", "migrate", "172.16.1.101:17310", "172.16.1.102:17310", "--count", "-1"},
+			args:      []string{"172.16.1.101:17310", "172.16.1.102:17310", "--count", "-1"},
 			expectErr: true,
 		},
 		{
 			name:      "too much migrate dp count",
-			args:      []string{"datanode", "migrate", "172.16.1.101:17310", "172.16.1.102:17310", "--count", "500"},
+			args:      []string{"172.16.1.101:17310", "172.16.1.102:17310", "--count", "500"},
 			expectErr: true,
 		},
 	}
@@ -211,6 +195,6 @@ func TestDataNodeMigrateCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("datanode", "migrate")
 	r.runTestCases(t, testCases)
 }

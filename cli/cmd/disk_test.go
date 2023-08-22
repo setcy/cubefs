@@ -34,7 +34,7 @@ func TestListBadDiskCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"disk", "check"},
+			args:      []string{},
 			expectErr: false,
 		},
 	}
@@ -64,6 +64,6 @@ func TestListBadDiskCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("disk", "check")
 	r.runTestCases(t, testCases)
 }

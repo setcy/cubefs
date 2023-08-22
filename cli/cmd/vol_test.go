@@ -35,20 +35,15 @@ func TestVolListCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"volume", "list"},
+			args:      []string{},
 			expectErr: false,
 		},
 	}
 
 	successV1 := []*proto.VolInfo{
 		{
-			Name:                  "vol1",
-			Owner:                 "cfs",
-			CreateTime:            0,
-			Status:                0,
-			TotalSize:             0,
-			UsedSize:              0,
-			DpReadOnlyWhenVolFull: false,
+			Name:  "vol1",
+			Owner: "cfs",
 		},
 	}
 
@@ -64,7 +59,7 @@ func TestVolListCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("volume", "list")
 	r.runTestCases(t, testCases)
 }
 
@@ -72,17 +67,17 @@ func TestVolCreateCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"volume", "create", "vol1", "user1"},
+			args:      []string{"vol1", "user1"},
 			expectErr: false,
 		},
 		{
 			name:      "Missing 1 arguments",
-			args:      []string{"volume", "create", "vol1"},
+			args:      []string{"vol1"},
 			expectErr: true,
 		},
 		{
 			name:      "Missing 2 arguments",
-			args:      []string{"volume", "create"},
+			args:      []string{},
 			expectErr: true,
 		},
 	}
@@ -99,7 +94,7 @@ func TestVolCreateCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("volume", "create")
 	r.runTestCases(t, testCases)
 }
 
@@ -107,12 +102,12 @@ func TestVolUpdateCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"volume", "update", "vol1"},
+			args:      []string{"vol1"},
 			expectErr: false,
 		},
 		{
 			name: "Valid arguments with more options",
-			args: []string{"volume", "update", "vol1",
+			args: []string{"vol1",
 				"--description", "test",
 				"--zone-name", "zone1",
 				"--capacity", "10",
@@ -137,7 +132,7 @@ func TestVolUpdateCmd(t *testing.T) {
 		},
 		{
 			name:      "Missing arguments",
-			args:      []string{"volume", "update"},
+			args:      []string{},
 			expectErr: true,
 		},
 	}
@@ -181,7 +176,7 @@ func TestVolUpdateCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("volume", "update")
 	r.runTestCases(t, testCases)
 }
 
@@ -189,17 +184,17 @@ func TestVolInfoCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"volume", "info", "vol1"},
+			args:      []string{"vol1"},
 			expectErr: false,
 		},
 		{
 			name:      "Valid arguments with more options",
-			args:      []string{"volume", "info", "vol1", "--meta-partition", "--data-partition"},
+			args:      []string{"vol1", "--meta-partition", "--data-partition"},
 			expectErr: false,
 		},
 		{
 			name:      "Missing arguments",
-			args:      []string{"volume", "info"},
+			args:      []string{},
 			expectErr: true,
 		},
 	}
@@ -231,32 +226,15 @@ func TestVolInfoCmd(t *testing.T) {
 	metaPartitionV1 := []*proto.MetaPartitionView{
 		{
 			PartitionID: 1,
-			Start:       0,
-			End:         0,
-			MaxInodeID:  0,
-			InodeCount:  0,
-			DentryCount: 0,
-			FreeListLen: 0,
-			IsRecover:   false,
 			Members:     []string{},
-			LeaderAddr:  "",
-			Status:      0,
 		},
 	}
 
 	dataPartitionV1 := &proto.DataPartitionsView{
 		DataPartitions: []*proto.DataPartitionResponse{
 			{
-				PartitionType: 0,
-				PartitionID:   1,
-				Status:        0,
-				ReplicaNum:    0,
-				Hosts:         []string{},
-				LeaderAddr:    "",
-				Epoch:         0,
-				IsRecover:     false,
-				PartitionTTL:  0,
-				IsDiscard:     false,
+				PartitionID: 1,
+				Hosts:       []string{},
 			},
 		},
 	}
@@ -279,7 +257,7 @@ func TestVolInfoCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("volume", "info")
 	r.runTestCases(t, testCases)
 }
 
@@ -287,17 +265,17 @@ func TestVolDeleteCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"volume", "delete", "vol1", "-y"},
+			args:      []string{"vol1", "-y"},
 			expectErr: false,
 		},
 		{
 			name:      "Delete without confirmation",
-			args:      []string{"volume", "delete", "vol1"},
+			args:      []string{"vol1"},
 			expectErr: true,
 		},
 		{
 			name:      "Missing arguments",
-			args:      []string{"volume", "delete"},
+			args:      []string{},
 			expectErr: true,
 		},
 	}
@@ -341,7 +319,7 @@ func TestVolDeleteCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("volume", "delete")
 	r.runTestCases(t, testCases)
 }
 
@@ -349,22 +327,22 @@ func TestVolTransferCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"volume", "transfer", "vol1", "user1", "-y"},
+			args:      []string{"vol1", "user1", "-y"},
 			expectErr: false,
 		},
 		{
 			name:      "Transfer without confirmation",
-			args:      []string{"volume", "transfer", "vol1", "user1"},
+			args:      []string{"vol1", "user1"},
 			expectErr: true,
 		},
 		{
 			name:      "Missing 1 arguments",
-			args:      []string{"volume", "transfer", "vol1"},
+			args:      []string{"vol1"},
 			expectErr: true,
 		},
 		{
 			name:      "Missing 2 arguments",
-			args:      []string{"volume", "transfer"},
+			args:      []string{},
 			expectErr: true,
 		},
 	}
@@ -426,7 +404,7 @@ func TestVolTransferCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("volume", "transfer")
 	r.runTestCases(t, testCases)
 }
 
@@ -434,27 +412,27 @@ func TestVolAddDPCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"volume", "add-dp", "vol1", "1"},
+			args:      []string{"vol1", "1"},
 			expectErr: false,
 		},
 		{
 			name:      "Missing 1 arguments",
-			args:      []string{"volume", "add-dp", "vol1"},
+			args:      []string{"vol1"},
 			expectErr: true,
 		},
 		{
 			name:      "Missing 2 arguments",
-			args:      []string{"volume", "add-dp"},
+			args:      []string{},
 			expectErr: true,
 		},
 		{
 			name:      "count too small",
-			args:      []string{"volume", "add-dp", "vol1", "0"},
+			args:      []string{"vol1", "0"},
 			expectErr: true,
 		},
 		{
 			name:      "invalid count",
-			args:      []string{"volume", "add-dp", "vol1", "t"},
+			args:      []string{"vol1", "t"},
 			expectErr: true,
 		},
 	}
@@ -498,7 +476,7 @@ func TestVolAddDPCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("volume", "add-dp")
 	r.runTestCases(t, testCases)
 }
 
@@ -506,27 +484,27 @@ func TestVolExpandCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"volume", "expand", "vol1", "400"},
+			args:      []string{"vol1", "400"},
 			expectErr: false,
 		},
 		{
 			name:      "Missing 1 arguments",
-			args:      []string{"volume", "expand", "vol1"},
+			args:      []string{"vol1"},
 			expectErr: true,
 		},
 		{
 			name:      "Missing 2 arguments",
-			args:      []string{"volume", "expand"},
+			args:      []string{},
 			expectErr: true,
 		},
 		{
 			name:      "Invalid capacity",
-			args:      []string{"volume", "expand", "vol1", "t"},
+			args:      []string{"vol1", "t"},
 			expectErr: true,
 		},
 		{
 			name:      "Capacity smaller than before",
-			args:      []string{"volume", "expand", "vol1", "1"},
+			args:      []string{"vol1", "1"},
 			expectErr: true,
 		},
 	}
@@ -570,7 +548,7 @@ func TestVolExpandCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("volume", "expand")
 	r.runTestCases(t, testCases)
 }
 
@@ -578,27 +556,27 @@ func TestVolShrinkCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"volume", "shrink", "vol1", "1"},
+			args:      []string{"vol1", "1"},
 			expectErr: false,
 		},
 		{
 			name:      "Missing 1 arguments",
-			args:      []string{"volume", "shrink", "vol1"},
+			args:      []string{"vol1"},
 			expectErr: true,
 		},
 		{
 			name:      "Missing 2 arguments",
-			args:      []string{"volume", "shrink"},
+			args:      []string{},
 			expectErr: true,
 		},
 		{
 			name:      "Invalid capacity",
-			args:      []string{"volume", "shrink", "vol1", "t"},
+			args:      []string{"vol1", "t"},
 			expectErr: true,
 		},
 		{
 			name:      "Capacity bigger than before",
-			args:      []string{"volume", "shrink", "vol1", "400"},
+			args:      []string{"vol1", "400"},
 			expectErr: true,
 		},
 	}
@@ -642,6 +620,6 @@ func TestVolShrinkCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("volume", "shrink")
 	r.runTestCases(t, testCases)
 }

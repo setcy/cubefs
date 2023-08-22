@@ -35,17 +35,17 @@ func TestUserCreateCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"user", "create", "user1", "--password", "123456", "--access-key", "key1", "--secret-key", "key2", "--user-type", "admin"},
+			args:      []string{"user1", "--password", "123456", "--access-key", "key1", "--secret-key", "key2", "--user-type", "admin"},
 			expectErr: false,
 		},
 		{
 			name:      "Valid arguments in default",
-			args:      []string{"user", "create", "user1"},
+			args:      []string{"user1"},
 			expectErr: false,
 		},
 		{
 			name:      "Missing arguments",
-			args:      []string{"user", "create"},
+			args:      []string{},
 			expectErr: true,
 		},
 	}
@@ -62,7 +62,7 @@ func TestUserCreateCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("user", "create")
 	r.runTestCases(t, testCases)
 }
 
@@ -70,17 +70,17 @@ func TestUserUpdateCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"user", "update", "user1", "--access-key", "key1", "--secret-key", "key2", "--user-type", "admin"},
+			args:      []string{"user1", "--access-key", "key1", "--secret-key", "key2", "--user-type", "admin"},
 			expectErr: false,
 		},
 		{
 			name:      "No update",
-			args:      []string{"user", "update", "user1"},
+			args:      []string{"user1"},
 			expectErr: true,
 		},
 		{
 			name:      "Missing arguments",
-			args:      []string{"user", "update"},
+			args:      []string{},
 			expectErr: true,
 		},
 	}
@@ -97,7 +97,7 @@ func TestUserUpdateCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("user", "update")
 	r.runTestCases(t, testCases)
 }
 
@@ -105,17 +105,17 @@ func TestUserDeleteCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"user", "delete", "user1", "-y"},
+			args:      []string{"user1", "-y"},
 			expectErr: false,
 		},
 		{
 			name:      "Delete without confirmation",
-			args:      []string{"user", "delete", "user1"},
+			args:      []string{"user1"},
 			expectErr: true,
 		},
 		{
 			name:      "Missing arguments",
-			args:      []string{"user", "delete"},
+			args:      []string{},
 			expectErr: true,
 		},
 	}
@@ -132,7 +132,7 @@ func TestUserDeleteCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("user", "delete")
 	r.runTestCases(t, testCases)
 }
 
@@ -140,12 +140,12 @@ func TestUserInfoCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"user", "info", "user1"},
+			args:      []string{"user1"},
 			expectErr: false,
 		},
 		{
 			name:      "Missing arguments",
-			args:      []string{"user", "info"},
+			args:      []string{},
 			expectErr: true,
 		},
 	}
@@ -158,11 +158,7 @@ func TestUserInfoCmd(t *testing.T) {
 			OwnVols:        []string{"vol1", "vol2"},
 			AuthorizedVols: map[string][]string{"vol1": {"vol1"}},
 		},
-		UserType:    0,
-		CreateTime:  "",
-		Description: "",
-		Mu:          sync.RWMutex{},
-		EMPTY:       false,
+		Mu: sync.RWMutex{},
 	}
 
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
@@ -177,7 +173,7 @@ func TestUserInfoCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("user", "info")
 	r.runTestCases(t, testCases)
 }
 
@@ -185,27 +181,27 @@ func TestUserPermCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"user", "perm", "user1", "vol1", "rw"},
+			args:      []string{"user1", "vol1", "rw"},
 			expectErr: false,
 		},
 		{
 			name:      "Valid arguments in remove permission",
-			args:      []string{"user", "perm", "user1", "vol1", "none"},
+			args:      []string{"user1", "vol1", "none"},
 			expectErr: false,
 		},
 		{
 			name:      "Missing 1 arguments",
-			args:      []string{"user", "perm", "user1", "vol1"},
+			args:      []string{"user1", "vol1"},
 			expectErr: true,
 		},
 		{
 			name:      "Missing 3 arguments",
-			args:      []string{"user", "perm"},
+			args:      []string{},
 			expectErr: true,
 		},
 		{
 			name:      "Invalid permission",
-			args:      []string{"user", "perm", "user1", "vol1", "invalid"},
+			args:      []string{"user1", "vol1", "invalid"},
 			expectErr: true,
 		},
 	}
@@ -243,7 +239,7 @@ func TestUserPermCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("user", "perm")
 	r.runTestCases(t, testCases)
 }
 
@@ -251,25 +247,19 @@ func TestUserListCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"user", "list"},
+			args:      []string{},
 			expectErr: false,
 		},
 	}
 
 	successV1 := []*proto.UserInfo{
 		{
-			UserID:    "user1",
-			AccessKey: "",
-			SecretKey: "",
+			UserID: "user1",
 			Policy: &proto.UserPolicy{
 				OwnVols:        []string{"vol1", "vol2"},
 				AuthorizedVols: map[string][]string{"vol1": {"vol1"}},
 			},
-			UserType:    0,
-			CreateTime:  "",
-			Description: "",
-			Mu:          sync.RWMutex{},
-			EMPTY:       false,
+			Mu: sync.RWMutex{},
 		},
 	}
 
@@ -285,6 +275,6 @@ func TestUserListCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("user", "list")
 	r.runTestCases(t, testCases)
 }

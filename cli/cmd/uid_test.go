@@ -34,12 +34,12 @@ func TestUidAddCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"uid", "add", "testVol", "1", "20"},
+			args:      []string{"testVol", "1", "20"},
 			expectErr: false,
 		},
 		{
 			name:      "Missing arguments",
-			args:      []string{"uid", "add"},
+			args:      []string{},
 			expectErr: true,
 		},
 	}
@@ -56,7 +56,7 @@ func TestUidAddCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("uid", "add")
 	r.runTestCases(t, testCases)
 }
 
@@ -64,17 +64,17 @@ func TestUidListCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"uid", "list", "testVol"},
+			args:      []string{"testVol"},
 			expectErr: false,
 		},
 		{
 			name:      "List all volumes",
-			args:      []string{"uid", "list", "testVol", "all"},
+			args:      []string{"testVol", "all"},
 			expectErr: false,
 		},
 		{
 			name:      "Missing arguments",
-			args:      []string{"uid", "list"},
+			args:      []string{},
 			expectErr: true,
 		},
 	}
@@ -84,24 +84,12 @@ func TestUidListCmd(t *testing.T) {
 		OK:   true,
 		UidSpaceArr: []*proto.UidSpaceInfo{
 			{
-				VolName:   "vol1",
-				Uid:       1,
-				CTime:     0,
-				Enabled:   true,
-				Limited:   false,
-				UsedSize:  0,
-				LimitSize: 0,
-				Rsv:       "",
+				VolName: "vol1",
+				Uid:     1,
 			},
 			{
-				VolName:   "vol2",
-				Uid:       1,
-				CTime:     0,
-				Enabled:   false,
-				Limited:   false,
-				UsedSize:  0,
-				LimitSize: 0,
-				Rsv:       "",
+				VolName: "vol2",
+				Uid:     1,
 			},
 		},
 		Reserve: "",
@@ -119,7 +107,7 @@ func TestUidListCmd(t *testing.T) {
 		}
 	})
 
-	r := newCliTestRunner().setHttpClient(fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("uid", "list")
 	r.runTestCases(t, testCases)
 }
 
