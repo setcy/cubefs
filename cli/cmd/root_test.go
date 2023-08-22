@@ -16,11 +16,17 @@ package cmd
 
 import (
 	"fmt"
-	"testing"
-
-	"github.com/cubefs/cubefs/cli/cmd/mocktest"
+	"github.com/cubefs/cubefs/sdk/master"
+	"github.com/cubefs/cubefs/util/fake"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
+	"net/http"
+	"testing"
+)
+
+const (
+	cliTestAddr     = "127.0.0.1:16517"
+	ContentTypeJSON = "application/json"
 )
 
 type testErrorRecorder struct {
@@ -39,8 +45,15 @@ func (t *testErrorRecorder) RecordedError() error {
 	return nil
 }
 
+func defaultHeader() http.Header {
+	header := http.Header{}
+	header.Set("Content-Type", ContentTypeJSON)
+	return header
+}
+
 func setupMockCommands() *cobra.Command {
-	var mc = mocktest.NewMockMasterClient()
+	var mc = master.NewMasterClient([]string{cliTestAddr}, false)
+	mc.SetTimeout(1)
 	cfsRootCmd := NewRootCmd(mc)
 	cfsRootCmd.CFSCmd.AddCommand(GenClusterCfgCmd)
 	return cfsRootCmd.CFSCmd
@@ -71,10 +84,11 @@ type TestCase struct {
 	expectErr bool
 }
 
-func runTestCases(t *testing.T, testCases []*TestCase) {
+func runTestCases(t *testing.T, testCases []*TestCase, fakeClient *http.Client, command ...string) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			err := testRun(tc.args...)
+			args := append(command, tc.args...)
+			err := testRun(args...)
 			if tc.expectErr {
 				assert.Error(t, err)
 			} else {
@@ -108,5 +122,17 @@ func TestRootCmd(t *testing.T) {
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient)
 }

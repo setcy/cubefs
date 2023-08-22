@@ -28,7 +28,7 @@ const (
 	cmdClusterShort = "Manage cluster components"
 )
 
-func (cmd *CubeFSCmd) newClusterCmd(client master.IMasterClient) *cobra.Command {
+func (cmd *CubeFSCmd) newClusterCmd(client *master.MasterClient) *cobra.Command {
 	var clusterCmd = &cobra.Command{
 		Use:   cmdClusterUse,
 		Short: cmdClusterShort,
@@ -58,7 +58,7 @@ const (
 	cmdForbidMpDecommission       = "forbid meta partition decommission"
 )
 
-func newClusterInfoCmd(client master.IMasterClient) *cobra.Command {
+func newClusterInfoCmd(client *master.MasterClient) *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   CliOpInfo,
 		Short: cmdClusterInfoShort,
@@ -99,7 +99,7 @@ func newClusterInfoCmd(client master.IMasterClient) *cobra.Command {
 	return cmd
 }
 
-func newClusterStatCmd(client master.IMasterClient) *cobra.Command {
+func newClusterStatCmd(client *master.MasterClient) *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   CliOpStatus,
 		Short: cmdClusterStatShort,
@@ -125,7 +125,7 @@ func newClusterStatCmd(client master.IMasterClient) *cobra.Command {
 	return cmd
 }
 
-func newClusterFreezeCmd(client master.IMasterClient) *cobra.Command {
+func newClusterFreezeCmd(client *master.MasterClient) *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:       CliOpFreeze + " [ENABLE]",
 		ValidArgs: []string{"true", "false"},
@@ -164,7 +164,7 @@ If 'freeze=true', CubeFS WILL NOT automatically allocate new data partitions `,
 	return cmd
 }
 
-func newClusterSetThresholdCmd(client master.IMasterClient) *cobra.Command {
+func newClusterSetThresholdCmd(client *master.MasterClient) *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   CliOpSetThreshold + " [THRESHOLD]",
 		Short: cmdClusterThresholdShort,
@@ -198,7 +198,7 @@ If the memory usage reaches this threshold, all the meta partition will be readO
 	return cmd
 }
 
-func newClusterSetParasCmd(client master.IMasterClient) *cobra.Command {
+func newClusterSetParasCmd(client *master.MasterClient) *cobra.Command {
 	var optAutoRepairRate, optMarkDeleteRate, optDelBatchCount, optDelWorkerSleepMs, optLoadFactor, opMaxDpCntLimit string
 	var cmd = &cobra.Command{
 		Use:   CliOpSetCluster,
@@ -229,7 +229,7 @@ func newClusterSetParasCmd(client master.IMasterClient) *cobra.Command {
 	return cmd
 }
 
-func newClusterDisableMpDecommissionCmd(client master.IMasterClient) *cobra.Command {
+func newClusterDisableMpDecommissionCmd(client *master.MasterClient) *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:       CliOpForbidMpDecommission + " [true|false]",
 		ValidArgs: []string{"true", "false"},

@@ -33,7 +33,7 @@ type CubeFSCmd struct {
 	CFSCmd *cobra.Command
 }
 
-func NewRootCmd(client master.IMasterClient) *CubeFSCmd {
+func NewRootCmd(client *master.MasterClient) *CubeFSCmd {
 	var optShowVersion bool
 	var cmd = &CubeFSCmd{
 		CFSCmd: &cobra.Command{

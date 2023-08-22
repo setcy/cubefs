@@ -15,6 +15,8 @@
 package cmd
 
 import (
+	"github.com/cubefs/cubefs/util/fake"
+	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -34,7 +36,19 @@ func TestVolListCmd(t *testing.T) {
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient)
 }
 
 func TestVolCreateCmd(t *testing.T) {
@@ -56,7 +70,19 @@ func TestVolCreateCmd(t *testing.T) {
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient)
 }
 
 func TestVolUpdateCmd(t *testing.T) {
@@ -98,7 +124,19 @@ func TestVolUpdateCmd(t *testing.T) {
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient)
 }
 
 func TestVolInfoCmd(t *testing.T) {
@@ -120,7 +158,19 @@ func TestVolInfoCmd(t *testing.T) {
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient)
 }
 
 func TestVolDeleteCmd(t *testing.T) {
@@ -142,7 +192,19 @@ func TestVolDeleteCmd(t *testing.T) {
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient)
 }
 
 func TestVolTransferCmd(t *testing.T) {
@@ -169,7 +231,19 @@ func TestVolTransferCmd(t *testing.T) {
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient)
 }
 
 func TestVolAddDPCmd(t *testing.T) {
@@ -201,7 +275,19 @@ func TestVolAddDPCmd(t *testing.T) {
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient)
 }
 
 func TestVolExpandCmd(t *testing.T) {
@@ -233,7 +319,19 @@ func TestVolExpandCmd(t *testing.T) {
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient)
 }
 
 func TestVolShrinkCmd(t *testing.T) {
@@ -265,5 +363,17 @@ func TestVolShrinkCmd(t *testing.T) {
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient)
 }

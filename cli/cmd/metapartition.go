@@ -29,7 +29,7 @@ const (
 	cmdMetaPartitionShort = "Manage meta partition"
 )
 
-func newMetaPartitionCmd(client master.IMasterClient) *cobra.Command {
+func newMetaPartitionCmd(client *master.MasterClient) *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   cmdMetaPartitionUse,
 		Short: cmdMetaPartitionShort,
@@ -52,7 +52,7 @@ const (
 	cmdMetaPartitionDeleteReplicaShort = "Delete a replication of the meta partition on a fixed address"
 )
 
-func newMetaPartitionGetCmd(client master.IMasterClient) *cobra.Command {
+func newMetaPartitionGetCmd(client *master.MasterClient) *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   CliOpInfo + " [META PARTITION ID]",
 		Short: cmdMetaPartitionGetShort,
@@ -80,7 +80,7 @@ func newMetaPartitionGetCmd(client master.IMasterClient) *cobra.Command {
 	return cmd
 }
 
-func newListCorruptMetaPartitionCmd(client master.IMasterClient) *cobra.Command {
+func newListCorruptMetaPartitionCmd(client *master.MasterClient) *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   CliOpCheck,
 		Short: cmdCheckCorruptMetaPartitionShort,
@@ -257,7 +257,7 @@ the corrupt nodes, the few remaining replicas can not reach an agreement with on
 	return cmd
 }
 
-func newMetaPartitionDecommissionCmd(client master.IMasterClient) *cobra.Command {
+func newMetaPartitionDecommissionCmd(client *master.MasterClient) *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   CliOpDecommission + " [ADDRESS] [META PARTITION ID]",
 		Short: cmdMetaPartitionDecommissionShort,
@@ -292,7 +292,7 @@ func newMetaPartitionDecommissionCmd(client master.IMasterClient) *cobra.Command
 	return cmd
 }
 
-func newMetaPartitionReplicateCmd(client master.IMasterClient) *cobra.Command {
+func newMetaPartitionReplicateCmd(client *master.MasterClient) *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   CliOpReplicate + " [ADDRESS] [META PARTITION ID]",
 		Short: cmdMetaPartitionReplicateShort,
@@ -327,7 +327,7 @@ func newMetaPartitionReplicateCmd(client master.IMasterClient) *cobra.Command {
 	return cmd
 }
 
-func newMetaPartitionDeleteReplicaCmd(client master.IMasterClient) *cobra.Command {
+func newMetaPartitionDeleteReplicaCmd(client *master.MasterClient) *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   CliOpDelReplica + " [ADDRESS] [META PARTITION ID]",
 		Short: cmdMetaPartitionDeleteReplicaShort,

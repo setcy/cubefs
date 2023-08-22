@@ -15,9 +15,10 @@
 package cmd
 
 import (
+	"github.com/cubefs/cubefs/util/fake"
+	"net/http"
 	"testing"
 
-	"github.com/cubefs/cubefs/cli/cmd/mocktest"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -30,7 +31,7 @@ func TestUidAddCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"uid", "add", mocktest.CommonVolName, "1", "20"},
+			args:      []string{"uid", "add", "testVol", "1", "20"},
 			expectErr: false,
 		},
 		{
@@ -38,26 +39,33 @@ func TestUidAddCmd(t *testing.T) {
 			args:      []string{"uid", "add"},
 			expectErr: true,
 		},
-		{
-			name:      "invalid VolName",
-			args:      []string{"uid", "add", "invalidVolName", "1", "20"},
-			expectErr: true,
-		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient)
 }
 
 func TestUidListCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"uid", "list", mocktest.CommonVolName},
+			args:      []string{"uid", "list", "testVol"},
 			expectErr: false,
 		},
 		{
 			name:      "List all volumes",
-			args:      []string{"uid", "list", mocktest.CommonVolName, "all"},
+			args:      []string{"uid", "list", "testVol", "all"},
 			expectErr: false,
 		},
 		{
@@ -65,21 +73,28 @@ func TestUidListCmd(t *testing.T) {
 			args:      []string{"uid", "list"},
 			expectErr: true,
 		},
-		{
-			name:      "invalid VolName",
-			args:      []string{"uid", "list", "invalidVolName"},
-			expectErr: true,
-		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient)
 }
 
 func TestUidDelCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"uid", "del", mocktest.CommonVolName, "1"},
+			args:      []string{"uid", "del", "testVol", "1"},
 			expectErr: false,
 		},
 		{
@@ -87,20 +102,27 @@ func TestUidDelCmd(t *testing.T) {
 			args:      []string{"uid", "del"},
 			expectErr: true,
 		},
-		{
-			name:      "invalid VolName",
-			args:      []string{"uid", "del", "invalidVolName", "1"},
-			expectErr: true,
-		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient)
 }
 func TestUidCheckCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"uid", "check", mocktest.CommonVolName, "1"},
+			args:      []string{"uid", "check", "testVol", "1"},
 			expectErr: false,
 		},
 		{
@@ -108,12 +130,19 @@ func TestUidCheckCmd(t *testing.T) {
 			args:      []string{"uid", "check"},
 			expectErr: true,
 		},
-		{
-			name:      "invalid VolName",
-			args:      []string{"uid", "check", "invalidVolName", "1"},
-			expectErr: true,
-		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient)
 }

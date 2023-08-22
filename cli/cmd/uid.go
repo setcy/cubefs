@@ -39,7 +39,7 @@ const (
 	uidAll = "all"
 )
 
-func newUidCmd(client master.IMasterClient) *cobra.Command {
+func newUidCmd(client *master.MasterClient) *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:     cmdUidUse,
 		Short:   cmdUidShort,
@@ -55,7 +55,7 @@ func newUidCmd(client master.IMasterClient) *cobra.Command {
 	return cmd
 }
 
-func newUidAddCmd(client master.IMasterClient) *cobra.Command {
+func newUidAddCmd(client *master.MasterClient) *cobra.Command {
 	var optKeyword string
 	var cmd = &cobra.Command{
 		Use:     CliUidAdd,
@@ -80,7 +80,7 @@ func newUidAddCmd(client master.IMasterClient) *cobra.Command {
 	return cmd
 }
 
-func newUidListCmd(client master.IMasterClient) *cobra.Command {
+func newUidListCmd(client *master.MasterClient) *cobra.Command {
 	var (
 		optKeyword string
 		uidListAll bool
@@ -121,7 +121,7 @@ func newUidListCmd(client master.IMasterClient) *cobra.Command {
 	return cmd
 }
 
-func newUidDelCmd(client master.IMasterClient) *cobra.Command {
+func newUidDelCmd(client *master.MasterClient) *cobra.Command {
 	var optKeyword string
 	var cmd = &cobra.Command{
 		Use:     CliUidDel,
@@ -146,7 +146,7 @@ func newUidDelCmd(client master.IMasterClient) *cobra.Command {
 	return cmd
 }
 
-func newUidCheckCmd(client master.IMasterClient) *cobra.Command {
+func newUidCheckCmd(client *master.MasterClient) *cobra.Command {
 	var optKeyword string
 	var cmd = &cobra.Command{
 		Use:     CliUidCheck,

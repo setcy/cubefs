@@ -45,18 +45,6 @@ type MasterCLientWithResolver struct {
 	stopC          chan struct{}
 }
 
-type IMasterClient interface {
-	AddNode(address string)
-	Leader() (addr string)
-	AdminAPI() IAdminAPI
-	ClientAPI() IClientAPI
-	NodeAPI() INodeAPI
-	UserAPI() IUserAPI
-	SetLeader(addr string)
-	SetTimeout(timeout uint16)
-	Nodes() (nodes []string)
-}
-
 type MasterClient struct {
 	sync.RWMutex
 	masters    []string
@@ -92,19 +80,19 @@ func (c *MasterClient) Leader() (addr string) {
 	return
 }
 
-func (c *MasterClient) AdminAPI() IAdminAPI {
+func (c *MasterClient) AdminAPI() *AdminAPI {
 	return c.adminAPI
 }
 
-func (c *MasterClient) ClientAPI() IClientAPI {
+func (c *MasterClient) ClientAPI() *ClientAPI {
 	return c.clientAPI
 }
 
-func (c *MasterClient) NodeAPI() INodeAPI {
+func (c *MasterClient) NodeAPI() *NodeAPI {
 	return c.nodeAPI
 }
 
-func (c *MasterClient) UserAPI() IUserAPI {
+func (c *MasterClient) UserAPI() *UserAPI {
 	return c.userAPI
 }
 
@@ -245,6 +233,7 @@ func (c *MasterClient) httpRequest(method, url string, param, header map[string]
 	for k, v := range header {
 		req.Header.Set(k, v)
 	}
+	fmt.Println("request url:", req.URL)
 	resp, err = client.Do(req)
 	return
 }

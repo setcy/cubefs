@@ -36,7 +36,7 @@ const (
 	CliAclCheck     = "check"
 )
 
-func newAclCmd(client master.IMasterClient) *cobra.Command {
+func newAclCmd(client *master.MasterClient) *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:     cmdAclUse,
 		Short:   cmdAclShort,
@@ -52,7 +52,7 @@ func newAclCmd(client master.IMasterClient) *cobra.Command {
 	return cmd
 }
 
-func newAclAddCmd(client master.IMasterClient) *cobra.Command {
+func newAclAddCmd(client *master.MasterClient) *cobra.Command {
 	var optKeyword string
 	var cmd = &cobra.Command{
 		Use:     CliAclAdd,
@@ -77,7 +77,7 @@ func newAclAddCmd(client master.IMasterClient) *cobra.Command {
 	return cmd
 }
 
-func newAclListCmd(client master.IMasterClient) *cobra.Command {
+func newAclListCmd(client *master.MasterClient) *cobra.Command {
 	var optKeyword string
 	var cmd = &cobra.Command{
 		Use:     cliAclListShort,
@@ -107,7 +107,7 @@ func newAclListCmd(client master.IMasterClient) *cobra.Command {
 	return cmd
 }
 
-func newAclDelCmd(client master.IMasterClient) *cobra.Command {
+func newAclDelCmd(client *master.MasterClient) *cobra.Command {
 	var optKeyword string
 	var cmd = &cobra.Command{
 		Use:     CliAclDel,
@@ -132,7 +132,7 @@ func newAclDelCmd(client master.IMasterClient) *cobra.Command {
 	return cmd
 }
 
-func newAclCheckCmd(client master.IMasterClient) *cobra.Command {
+func newAclCheckCmd(client *master.MasterClient) *cobra.Command {
 	var optKeyword string
 	var cmd = &cobra.Command{
 		Use:     CliAclCheck,

@@ -15,6 +15,8 @@
 package cmd
 
 import (
+	"github.com/cubefs/cubefs/util/fake"
+	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -44,7 +46,19 @@ func TestMetaPartitionGetCmd(t *testing.T) {
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient)
 }
 
 func TestListCorruptMetaPartitionCmd(t *testing.T) {
@@ -56,7 +70,19 @@ func TestListCorruptMetaPartitionCmd(t *testing.T) {
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient)
 }
 
 func TestMetaPartitionDecommissionCmd(t *testing.T) {
@@ -83,7 +109,19 @@ func TestMetaPartitionDecommissionCmd(t *testing.T) {
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient)
 }
 
 func TestMetaPartitionReplicateCmd(t *testing.T) {
@@ -110,7 +148,19 @@ func TestMetaPartitionReplicateCmd(t *testing.T) {
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient)
 }
 
 func TestMetaPartitionDeleteReplicaCmd(t *testing.T) {
@@ -137,7 +187,19 @@ func TestMetaPartitionDeleteReplicaCmd(t *testing.T) {
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient)
 }
 
 func TestMetaPartitionGetDiscardCmd(t *testing.T) {
@@ -149,5 +211,17 @@ func TestMetaPartitionGetDiscardCmd(t *testing.T) {
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient)
 }

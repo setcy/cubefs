@@ -27,7 +27,7 @@ const (
 	cmdDiskShort = "Manage cluster disks"
 )
 
-func newDiskCmd(client master.IMasterClient) *cobra.Command {
+func newDiskCmd(client *master.MasterClient) *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:     cmdDiskUse,
 		Short:   cmdDiskShort,
@@ -44,7 +44,7 @@ const (
 	cmdCheckBadDisksShort = "Check and list unhealthy disks"
 )
 
-func newListBadDiskCmd(client master.IMasterClient) *cobra.Command {
+func newListBadDiskCmd(client *master.MasterClient) *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   CliOpCheck,
 		Short: cmdCheckBadDisksShort,

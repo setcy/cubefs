@@ -15,6 +15,8 @@
 package cmd
 
 import (
+	"github.com/cubefs/cubefs/util/fake"
+	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -34,7 +36,19 @@ func TestDataNodeListCmd(t *testing.T) {
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient)
 }
 
 func TestDataNodeInfoCmd(t *testing.T) {
@@ -51,7 +65,19 @@ func TestDataNodeInfoCmd(t *testing.T) {
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient)
 }
 
 func TestDataNodeDecommissionCmd(t *testing.T) {
@@ -73,7 +99,19 @@ func TestDataNodeDecommissionCmd(t *testing.T) {
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient)
 }
 
 func TestDataNodeMigrateCmd(t *testing.T) {
@@ -105,5 +143,17 @@ func TestDataNodeMigrateCmd(t *testing.T) {
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient)
 }

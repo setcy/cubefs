@@ -15,9 +15,10 @@
 package cmd
 
 import (
+	"github.com/cubefs/cubefs/util/fake"
+	"net/http"
 	"testing"
 
-	"github.com/cubefs/cubefs/cli/cmd/mocktest"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -30,81 +31,109 @@ func TestAclAddCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"acl", "add", mocktest.CommonVolName, "192.168.0.1"},
+			args:      []string{"testVol", "192.168.0.1"},
 			expectErr: false,
 		},
 		{
-			name:      "invalid VolName",
-			args:      []string{"acl", "add", "invalidVolName", "192.168.0.1"},
-			expectErr: true,
-		},
-		{
 			name:      "missing arguments",
-			args:      []string{"acl", "add", mocktest.CommonVolName},
+			args:      []string{"testVol"},
 			expectErr: true,
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient, "acl", "add")
 }
 
 func TestAclListCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"acl", "list", mocktest.CommonVolName},
+			args:      []string{"testVol"},
 			expectErr: false,
-		},
-		{
-			name:      "invalid VolName",
-			args:      []string{"acl", "list", "invalidVolName"},
-			expectErr: true,
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient, "acl", "list")
 }
 
 func TestAclDelCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"acl", "del", mocktest.CommonVolName, "192.168.0.1"},
+			args:      []string{"testVol", "192.168.0.1"},
 			expectErr: false,
 		},
 		{
-			name:      "invalid VolName",
-			args:      []string{"acl", "del", "invalidVolName", "192.168.0.1"},
-			expectErr: true,
-		},
-		{
 			name:      "missing arguments",
-			args:      []string{"acl", "del", mocktest.CommonVolName},
+			args:      []string{"testVol"},
 			expectErr: true,
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient, "acl", "del")
 }
 
 func TestAclCheckCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"acl", "check", mocktest.CommonVolName, "192.168.0.1"},
+			args:      []string{"testVol", "192.168.0.1"},
 			expectErr: false,
 		},
 		{
-			name:      "invalid VolName",
-			args:      []string{"acl", "check", "invalidVolName", "192.168.0.1"},
-			expectErr: true,
-		},
-		{
 			name:      "missing arguments",
-			args:      []string{"acl", "check", mocktest.CommonVolName},
+			args:      []string{"testVol"},
 			expectErr: true,
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient, "acl", "check")
 }

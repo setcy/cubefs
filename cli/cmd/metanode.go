@@ -30,7 +30,7 @@ const (
 	mpMigrateMax     = 15
 )
 
-func newMetaNodeCmd(client master.IMasterClient) *cobra.Command {
+func newMetaNodeCmd(client *master.MasterClient) *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   cmdMetaNodeUse,
 		Short: cmdMetaNodeShort,
@@ -51,7 +51,7 @@ const (
 	cmdMetaNodeMigrateInfoShort      = "Migrate partitions from a meta node to the other node"
 )
 
-func newMetaNodeListCmd(client master.IMasterClient) *cobra.Command {
+func newMetaNodeListCmd(client *master.MasterClient) *cobra.Command {
 	var optFilterStatus string
 	var optFilterWritable string
 	var cmd = &cobra.Command{
@@ -92,7 +92,7 @@ func newMetaNodeListCmd(client master.IMasterClient) *cobra.Command {
 	return cmd
 }
 
-func newMetaNodeInfoCmd(client master.IMasterClient) *cobra.Command {
+func newMetaNodeInfoCmd(client *master.MasterClient) *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   CliOpInfo + " [{HOST}:{PORT}]",
 		Short: cmdMetaNodeInfoShort,
@@ -123,7 +123,7 @@ func newMetaNodeInfoCmd(client master.IMasterClient) *cobra.Command {
 	}
 	return cmd
 }
-func newMetaNodeDecommissionCmd(client master.IMasterClient) *cobra.Command {
+func newMetaNodeDecommissionCmd(client *master.MasterClient) *cobra.Command {
 	var optCount int
 	var cmd = &cobra.Command{
 		Use:   CliOpDecommission + " [{HOST}:{PORT}]",
@@ -158,7 +158,7 @@ func newMetaNodeDecommissionCmd(client master.IMasterClient) *cobra.Command {
 	cmd.Flags().IntVar(&optCount, CliFlagCount, 0, "MetaNode delete mp count")
 	return cmd
 }
-func newMetaNodeMigrateCmd(client master.IMasterClient) *cobra.Command {
+func newMetaNodeMigrateCmd(client *master.MasterClient) *cobra.Command {
 	var optCount int
 	var cmd = &cobra.Command{
 		Use:   CliOpMigrate + " src[{HOST}:{PORT}] dst[{HOST}:{PORT}]",

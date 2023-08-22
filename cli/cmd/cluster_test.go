@@ -15,6 +15,8 @@
 package cmd
 
 import (
+	"github.com/cubefs/cubefs/util/fake"
+	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -29,100 +31,172 @@ func TestClusterInfoCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"cluster", "info"},
+			args:      []string{},
 			expectErr: false,
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient, "cluster", "info")
 }
 
 func TestClusterStatCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"cluster", "stat"},
+			args:      []string{},
 			expectErr: false,
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient, "cluster", "stat")
 }
 
 func TestClusterFreezeCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments enable",
-			args:      []string{"cluster", "freeze", "true"},
+			args:      []string{"true"},
 			expectErr: false,
 		},
 		{
 			name:      "Valid arguments disable",
-			args:      []string{"cluster", "freeze", "false"},
+			args:      []string{"false"},
 			expectErr: false,
 		},
 		{
 			name:      "Invalid arguments",
-			args:      []string{"cluster", "freeze", "invalid"},
+			args:      []string{"invalid"},
 			expectErr: true,
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient, "cluster", "freeze")
 }
 
 func TestClusterSetThresholdCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"cluster", "threshold", "0.5"},
+			args:      []string{"0.5"},
 			expectErr: false,
 		},
 		{
 			name:      "missing arguments",
-			args:      []string{"cluster", "threshold"},
+			args:      []string{},
 			expectErr: true,
 		},
 		{
 			name:      "Invalid arguments",
-			args:      []string{"cluster", "threshold", "invalid"},
+			args:      []string{"invalid"},
 			expectErr: true,
 		},
 		{
 			name:      "too big threshold",
-			args:      []string{"cluster", "threshold", "1.1"},
+			args:      []string{"1.1"},
 			expectErr: true,
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient, "cluster", "threshold")
 }
 
 func TestClusterSetParasCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"cluster", "set"},
+			args:      []string{},
 			expectErr: false,
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient, "cluster", "set")
 }
 
 func TestClusterDisableMpDecommissionCmd(t *testing.T) {
 	testCases := []*TestCase{
 		{
 			name:      "Valid arguments",
-			args:      []string{"cluster", "forbid-mp-decommission", "true"},
+			args:      []string{"true"},
 			expectErr: false,
 		},
 		{
 			name:      "Missing arguments",
-			args:      []string{"cluster", "forbid-mp-decommission"},
+			args:      []string{"forbid-mp-decommission"},
 			expectErr: true,
 		},
 	}
 
-	runTestCases(t, testCases)
+	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
+		switch p, m := req.URL.Path, req.Method; {
+
+		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
+
+		default:
+			t.Fatalf("unexpected request: %#v\n%#v", req.URL, req)
+			return nil, nil
+		}
+	})
+
+	runTestCases(t, testCases, fakeClient, "cluster", "forbid-mp-decommission")
 }
