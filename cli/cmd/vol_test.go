@@ -23,7 +23,8 @@ import (
 )
 
 func TestVolCmd(t *testing.T) {
-	err := testRun("volume", "help")
+	r := newCliTestRunner()
+	err := r.testRun("volume", "help")
 	assert.NoError(t, err)
 }
 
@@ -48,7 +49,8 @@ func TestVolListCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestVolCreateCmd(t *testing.T) {
@@ -82,7 +84,8 @@ func TestVolCreateCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestVolUpdateCmd(t *testing.T) {
@@ -136,7 +139,8 @@ func TestVolUpdateCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestVolInfoCmd(t *testing.T) {
@@ -170,7 +174,8 @@ func TestVolInfoCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestVolDeleteCmd(t *testing.T) {
@@ -204,7 +209,8 @@ func TestVolDeleteCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestVolTransferCmd(t *testing.T) {
@@ -243,7 +249,8 @@ func TestVolTransferCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestVolAddDPCmd(t *testing.T) {
@@ -287,7 +294,8 @@ func TestVolAddDPCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestVolExpandCmd(t *testing.T) {
@@ -331,7 +339,8 @@ func TestVolExpandCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestVolShrinkCmd(t *testing.T) {
@@ -375,5 +384,6 @@ func TestVolShrinkCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }

@@ -23,7 +23,8 @@ import (
 )
 
 func TestZoneCmd(t *testing.T) {
-	err := testRun("zone", "help")
+	r := newCliTestRunner()
+	err := r.testRun("zone", "help")
 	assert.NoError(t, err)
 }
 
@@ -48,7 +49,8 @@ func TestZoneList(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestZoneInfo(t *testing.T) {
@@ -77,5 +79,6 @@ func TestZoneInfo(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }

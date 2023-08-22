@@ -23,7 +23,8 @@ import (
 )
 
 func TestUserCmd(t *testing.T) {
-	err := testRun("user", "help")
+	r := newCliTestRunner()
+	err := r.testRun("user", "help")
 	assert.NoError(t, err)
 }
 
@@ -58,7 +59,8 @@ func TestUserCreateCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestUserUpdateCmd(t *testing.T) {
@@ -92,7 +94,8 @@ func TestUserUpdateCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestUserDeleteCmd(t *testing.T) {
@@ -126,7 +129,8 @@ func TestUserDeleteCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestUserInfoCmd(t *testing.T) {
@@ -155,7 +159,8 @@ func TestUserInfoCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestUserPermCmd(t *testing.T) {
@@ -199,7 +204,8 @@ func TestUserPermCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestUserListCmd(t *testing.T) {
@@ -223,5 +229,6 @@ func TestUserListCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }

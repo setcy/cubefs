@@ -23,7 +23,8 @@ import (
 )
 
 func TestDiskCmd(t *testing.T) {
-	err := testRun("disk", "help")
+	r := newCliTestRunner()
+	err := r.testRun("disk", "help")
 	assert.NoError(t, err)
 }
 
@@ -48,5 +49,6 @@ func TestListBadDiskCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }

@@ -23,7 +23,8 @@ import (
 )
 
 func TestUidCmd(t *testing.T) {
-	err := testRun("uid", "help")
+	r := newCliTestRunner()
+	err := r.testRun("uid", "help")
 	assert.NoError(t, err)
 }
 
@@ -53,7 +54,8 @@ func TestUidAddCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestUidListCmd(t *testing.T) {
@@ -87,7 +89,8 @@ func TestUidListCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestUidDelCmd(t *testing.T) {
@@ -116,7 +119,8 @@ func TestUidDelCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 func TestUidCheckCmd(t *testing.T) {
 	testCases := []*TestCase{
@@ -144,5 +148,6 @@ func TestUidCheckCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }

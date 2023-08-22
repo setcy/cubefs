@@ -23,7 +23,8 @@ import (
 )
 
 func TestMetaNodeCmd(t *testing.T) {
-	err := testRun("metanode", "help")
+	r := newCliTestRunner()
+	err := r.testRun("metanode", "help")
 	assert.NoError(t, err)
 }
 
@@ -48,7 +49,8 @@ func TestMetaNodeListCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestMetaNodeInfoCmd(t *testing.T) {
@@ -77,7 +79,8 @@ func TestMetaNodeInfoCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestMetaNodeDecommissionCmd(t *testing.T) {
@@ -111,7 +114,8 @@ func TestMetaNodeDecommissionCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestMetaNodeMigrateCmd(t *testing.T) {
@@ -155,5 +159,6 @@ func TestMetaNodeMigrateCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }

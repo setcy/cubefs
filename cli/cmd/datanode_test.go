@@ -23,7 +23,8 @@ import (
 )
 
 func TestDataNodeCmd(t *testing.T) {
-	err := testRun("datanode", "help")
+	r := newCliTestRunner()
+	err := r.testRun("datanode", "help")
 	assert.NoError(t, err)
 }
 
@@ -48,7 +49,8 @@ func TestDataNodeListCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestDataNodeInfoCmd(t *testing.T) {
@@ -77,7 +79,8 @@ func TestDataNodeInfoCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestDataNodeDecommissionCmd(t *testing.T) {
@@ -111,7 +114,8 @@ func TestDataNodeDecommissionCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestDataNodeMigrateCmd(t *testing.T) {
@@ -155,5 +159,6 @@ func TestDataNodeMigrateCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }

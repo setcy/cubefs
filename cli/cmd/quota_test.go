@@ -23,7 +23,8 @@ import (
 )
 
 func TestQuotaCmd(t *testing.T) {
-	err := testRun("quota", "help")
+	r := newCliTestRunner()
+	err := r.testRun("quota", "help")
 	assert.NoError(t, err)
 }
 
@@ -53,7 +54,8 @@ func TestQuotaListCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestQuotaListAllCmd(t *testing.T) {
@@ -77,7 +79,8 @@ func TestQuotaListAllCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestQuotaUpdateCmd(t *testing.T) {
@@ -111,7 +114,8 @@ func TestQuotaUpdateCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestQuotaDeleteCmd(t *testing.T) {
@@ -145,5 +149,6 @@ func TestQuotaDeleteCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }

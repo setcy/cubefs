@@ -23,7 +23,8 @@ import (
 )
 
 func TestMetaPartitionCmd(t *testing.T) {
-	err := testRun("metapartition", "help")
+	r := newCliTestRunner()
+	err := r.testRun("metapartition", "help")
 	assert.NoError(t, err)
 }
 
@@ -58,7 +59,8 @@ func TestMetaPartitionGetCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestListCorruptMetaPartitionCmd(t *testing.T) {
@@ -82,7 +84,8 @@ func TestListCorruptMetaPartitionCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestMetaPartitionDecommissionCmd(t *testing.T) {
@@ -121,7 +124,8 @@ func TestMetaPartitionDecommissionCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestMetaPartitionReplicateCmd(t *testing.T) {
@@ -160,7 +164,8 @@ func TestMetaPartitionReplicateCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestMetaPartitionDeleteReplicaCmd(t *testing.T) {
@@ -199,7 +204,8 @@ func TestMetaPartitionDeleteReplicaCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestMetaPartitionGetDiscardCmd(t *testing.T) {
@@ -223,5 +229,6 @@ func TestMetaPartitionGetDiscardCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }

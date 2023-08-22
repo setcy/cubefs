@@ -23,7 +23,8 @@ import (
 )
 
 func TestClusterCmd(t *testing.T) {
-	err := testRun("cluster", "help")
+	r := newCliTestRunner()
+	err := r.testRun("cluster", "help")
 	assert.NoError(t, err)
 }
 
@@ -48,7 +49,8 @@ func TestClusterInfoCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient, "cluster", "info")
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("cluster", "info")
+	r.runTestCases(t, testCases)
 }
 
 func TestClusterStatCmd(t *testing.T) {
@@ -72,7 +74,8 @@ func TestClusterStatCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient, "cluster", "stat")
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("cluster", "stat")
+	r.runTestCases(t, testCases)
 }
 
 func TestClusterFreezeCmd(t *testing.T) {
@@ -106,7 +109,8 @@ func TestClusterFreezeCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient, "cluster", "freeze")
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("cluster", "freeze")
+	r.runTestCases(t, testCases)
 }
 
 func TestClusterSetThresholdCmd(t *testing.T) {
@@ -145,7 +149,8 @@ func TestClusterSetThresholdCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient, "cluster", "threshold")
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("cluster", "threshold")
+	r.runTestCases(t, testCases)
 }
 
 func TestClusterSetParasCmd(t *testing.T) {
@@ -169,7 +174,8 @@ func TestClusterSetParasCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient, "cluster", "set")
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("cluster", "set")
+	r.runTestCases(t, testCases)
 }
 
 func TestClusterDisableMpDecommissionCmd(t *testing.T) {
@@ -198,5 +204,6 @@ func TestClusterDisableMpDecommissionCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient, "cluster", "forbid-mp-decommission")
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("cluster", "forbid-mp-decommission")
+	r.runTestCases(t, testCases)
 }

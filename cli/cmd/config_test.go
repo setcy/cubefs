@@ -23,7 +23,8 @@ import (
 )
 
 func TestConfigCmd(t *testing.T) {
-	err := testRun("config", "help")
+	r := newCliTestRunner()
+	err := r.testRun("config", "help")
 	assert.NoError(t, err)
 }
 
@@ -58,10 +59,12 @@ func TestConfigSetCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("cluster", "freeze")
+	r.runTestCases(t, testCases)
 }
 
 func TestConfigInfoCmd(t *testing.T) {
-	err := testRun("config", "info")
+	r := newCliTestRunner()
+	err := r.testRun("config", "info")
 	assert.NoError(t, err)
 }

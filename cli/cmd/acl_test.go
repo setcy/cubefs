@@ -23,7 +23,8 @@ import (
 )
 
 func TestAclCmd(t *testing.T) {
-	err := testRun("acl", "help")
+	r := newCliTestRunner()
+	err := r.testRun("acl", "help")
 	assert.NoError(t, err)
 }
 
@@ -44,7 +45,7 @@ func TestAclAddCmd(t *testing.T) {
 	fakeClient := fake.CreateHTTPClient(func(req *http.Request) (*http.Response, error) {
 		switch p, m := req.URL.Path, req.Method; {
 
-		case m == http.MethodGet && p == "/apis/certificates.k8s.io/v1/certificatesigningrequests/missing":
+		case m == http.MethodGet && p == "/admin/aclOp?name=testVol&ip=192.168.0.1&op=1":
 			return &http.Response{StatusCode: http.StatusOK, Header: defaultHeader()}, nil
 
 		default:
@@ -53,7 +54,8 @@ func TestAclAddCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient, "acl", "add")
+	r := newCliTestRunner().setHttpClient(fakeClient).setCommand("acl", "add")
+	r.runTestCases(t, testCases)
 }
 
 func TestAclListCmd(t *testing.T) {
@@ -77,7 +79,8 @@ func TestAclListCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient, "acl", "list")
+	runner := newCliTestRunner().setHttpClient(fakeClient).setCommand("acl", "list")
+	runner.runTestCases(t, testCases)
 }
 
 func TestAclDelCmd(t *testing.T) {
@@ -106,7 +109,8 @@ func TestAclDelCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient, "acl", "del")
+	runner := newCliTestRunner().setHttpClient(fakeClient).setCommand("acl", "del")
+	runner.runTestCases(t, testCases)
 }
 
 func TestAclCheckCmd(t *testing.T) {
@@ -135,5 +139,6 @@ func TestAclCheckCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient, "acl", "check")
+	runner := newCliTestRunner().setHttpClient(fakeClient).setCommand("acl", "check")
+	runner.runTestCases(t, testCases)
 }

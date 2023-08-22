@@ -51,15 +51,36 @@ func defaultHeader() http.Header {
 	return header
 }
 
-func setupMockCommands() *cobra.Command {
-	var mc = master.NewMasterClient([]string{cliTestAddr}, false)
+type cliTestRunner struct {
+	masterClient *master.MasterClient
+	command      []string
+}
+
+func newCliTestRunner() *cliTestRunner {
+	mc := master.NewMasterClient([]string{cliTestAddr}, false)
 	mc.SetTimeout(1)
-	cfsRootCmd := NewRootCmd(mc)
+	return &cliTestRunner{
+		masterClient: mc,
+	}
+}
+
+func (c *cliTestRunner) setHttpClient(client *http.Client) *cliTestRunner {
+	c.masterClient.SetHttpClient(client)
+	return c
+}
+
+func (c *cliTestRunner) setCommand(args ...string) *cliTestRunner {
+	c.command = args
+	return c
+}
+
+func (c *cliTestRunner) setupMockCommands() *cobra.Command {
+	cfsRootCmd := NewRootCmd(c.masterClient)
 	cfsRootCmd.CFSCmd.AddCommand(GenClusterCfgCmd)
 	return cfsRootCmd.CFSCmd
 }
 
-func setupTestErrorRecorder() *testErrorRecorder {
+func (c *cliTestRunner) setupTestErrorRecorder() *testErrorRecorder {
 	recorder := &testErrorRecorder{}
 	erroutHandler = func(format string, args ...interface{}) {
 		_, _ = fmt.Fprintf(recorder, format, args...)
@@ -67,9 +88,9 @@ func setupTestErrorRecorder() *testErrorRecorder {
 	return recorder
 }
 
-func testRun(args ...string) (err error) {
-	recorder := setupTestErrorRecorder()
-	cfsCli := setupMockCommands()
+func (c *cliTestRunner) testRun(args ...string) (err error) {
+	recorder := c.setupTestErrorRecorder()
+	cfsCli := c.setupMockCommands()
 	cfsCli.SetArgs(args)
 	err = cfsCli.Execute()
 	if err != nil {
@@ -84,11 +105,11 @@ type TestCase struct {
 	expectErr bool
 }
 
-func runTestCases(t *testing.T, testCases []*TestCase, fakeClient *http.Client, command ...string) {
+func (c *cliTestRunner) runTestCases(t *testing.T, testCases []*TestCase) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			args := append(command, tc.args...)
-			err := testRun(args...)
+			args := append(c.command, tc.args...)
+			err := c.testRun(args...)
 			if tc.expectErr {
 				assert.Error(t, err)
 			} else {
@@ -134,5 +155,6 @@ func TestRootCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	runner := newCliTestRunner().setHttpClient(fakeClient)
+	runner.runTestCases(t, testCases)
 }

@@ -23,7 +23,8 @@ import (
 )
 
 func TestDataPartitionCmd(t *testing.T) {
-	err := testRun("datapartition", "help")
+	r := newCliTestRunner()
+	err := r.testRun("datapartition", "help")
 	assert.NoError(t, err)
 }
 
@@ -58,7 +59,8 @@ func TestDataPartitionGetCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestListCorruptDataPartitionCmd(t *testing.T) {
@@ -82,7 +84,8 @@ func TestListCorruptDataPartitionCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestDataPartitionDecommissionCmd(t *testing.T) {
@@ -121,7 +124,8 @@ func TestDataPartitionDecommissionCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestDataPartitionReplicateCmd(t *testing.T) {
@@ -160,7 +164,8 @@ func TestDataPartitionReplicateCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestDataPartitionDeleteReplicaCmd(t *testing.T) {
@@ -199,7 +204,8 @@ func TestDataPartitionDeleteReplicaCmd(t *testing.T) {
 		}
 	})
 
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
 
 func TestDataPartitionGetDiscardCmd(t *testing.T) {
@@ -222,6 +228,6 @@ func TestDataPartitionGetDiscardCmd(t *testing.T) {
 			return nil, nil
 		}
 	})
-
-	runTestCases(t, testCases, fakeClient)
+	r := newCliTestRunner().setHttpClient(fakeClient)
+	r.runTestCases(t, testCases)
 }
