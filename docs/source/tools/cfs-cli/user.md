@@ -8,14 +8,15 @@ Create user [USER ID].
 cfs-cli user create [USER ID] [flags]
 ```
 
-```bash
-Flags:
-    --access-key string                     # Specify the access key for the user to use the object storage function.
-    --secret-key string                     # Specify the secret key for the user to use the object storage function.
-    --password string                       # Specify the user password.
-    --user-type string                      # Specify the user type, optional values are normal or admin (default is normal).
-    -y, --yes                               # Skip all questions and set the answer to "yes".
-```
+### Flags
+
+| Name       | Description                                                                     |
+|------------|---------------------------------------------------------------------------------|
+| access-key | Specify the access key for the user to use the object storage function.         |
+| secret-key | Specify the secret key for the user to use the object storage function.         |
+| password   | Specify the user password.                                                      |
+| user-type  | Specify the user type, optional values are normal or admin (default is normal). |
+| y, yes     | Skip all questions and set the answer to "yes".                                 |
 
 ## Delete User
 
@@ -25,10 +26,11 @@ Delete user [USER ID].
 cfs-cli user delete [USER ID] [flags]
 ```
 
-```bash
-Flags:
-    -y, --yes                               # Skip all questions and set the answer to "yes".
-```
+### Flags
+
+| Name   | Description                                     |
+|--------|-------------------------------------------------|
+| y, yes | Skip all questions and set the answer to "yes". |
 
 ## Show User
 
@@ -64,11 +66,11 @@ Update the information of user [USER ID].
 cfs-cli user update [USER ID] [flags]
 ```
 
-```bash
-Flags:
-    --access-key string                     # The updated access key value.
-    --secret-key string                     # The updated secret key value.
-    --user-type string                      # The updated user type, optional values are normal or admin.
-    -y, --yes                               # Skip all questions and set the answer to "yes".
-```
+### Flags
 
+| Name       | Description                                                 |
+|------------|-------------------------------------------------------------|
+| access-key | The updated access key value.                               |
+| secret-key | The updated secret key value.                               |
+| user-type  | The updated user type, optional values are normal or admin. |
+| y, yes     | Skip all questions and set the answer to "yes".             |

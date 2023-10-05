@@ -6,6 +6,12 @@
 cfs-cli nodeset list
 ```
 
+### Flags
+
+| 名称               | 描述              |
+|------------------|-----------------|
+| zone-name        | 仅显示指定区域的nodeset |
+
 ## 获取单个nodeset的信息
 
 ```bash
@@ -18,9 +24,9 @@ cfs-cli nodeset info [NODESET ID]
 cfs-cli nodeset update [NODESET ID] [flags]
 ```
 
-```bash
-Flags:
-    --dataNodeSelector string   Set the node select policy(datanode) for specify nodeset
-    -h, --help                      help for update
-    --metaNodeSelector string   Set the node select policy(metanode) for specify nodeset
-```
+### Flags
+
+| 名称               | 描述                  |
+|------------------|---------------------|
+| dataNodeSelector | 为指定的节点集设置数据节点的选择策略  |
+| metaNodeSelector | 为指定的节点集设置元数据节点的选择策略 |

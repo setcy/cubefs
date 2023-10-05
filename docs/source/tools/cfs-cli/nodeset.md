@@ -6,6 +6,12 @@
 cfs-cli nodeset list
 ```
 
+### Flags
+
+| 名称               | 描述                                             |
+|------------------|------------------------------------------------|
+| zone-name        | Only display the nodeset of the specified area |
+
 ## Show NodeSet
 
 ```bash
@@ -18,9 +24,9 @@ cfs-cli nodeset info [NODESET ID]
 cfs-cli nodeset update [NODESET ID] [flags]
 ```
 
-```bash
-Flags:
-    --dataNodeSelector string   Set the node select policy(datanode) for specify nodeset
-    -h, --help                      help for update
-    --metaNodeSelector string   Set the node select policy(metanode) for specify nodeset
-```
+### Flags
+
+| Name             | Description                                                           |
+|------------------|-----------------------------------------------------------------------|
+| dataNodeSelector | Set the node select policy(datanode) for specify nodeset              |
+| metaNodeSelector | Set the node select policy(metanode) for specify nodeset              |

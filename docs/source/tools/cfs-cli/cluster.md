@@ -39,14 +39,19 @@ Set the configurations of the cluster.
 ```bash
 cfs-cli cluster set [flags]
 ```
-```bash
-Flags:
-      --autoRepairRate string        DataNode auto repair rate
-      --batchCount string            MetaNode delete batch count
-      --deleteWorkerSleepMs string   MetaNode delete worker sleep time with millisecond. if 0 for no sleep
-  -h, --help                         help for set
-      --loadFactor string            Load Factor
-      --markDeleteRate string        DataNode batch mark delete limit rate. if 0 for no infinity limit
-      --maxDpCntLimit string         Maximum number of dp on each datanode, default 3000, 0 represents setting to default
-```
 
+### Flags
+
+| Name                | Description                                                                          |
+|---------------------|--------------------------------------------------------------------------------------|
+| autoRepairRate      | DataNode auto repair rate                                                            |
+| batchCount          | MetaNode delete batch count                                                          |
+| clientIDKey         | needed if cluster authentication is on                                               |
+| dataNodeSelector    | Set the node select policy(datanode) for cluster                                     |
+| dataNodesetSelector | Set the nodeset select policy(datanode) for cluster                                  |
+| deleteWorkerSleepMs | MetaNode delete worker sleep time with millisecond. if 0 for no sleep                |
+| loadFactor          | Load Factor                                                                          |
+| markDeleteRate      | DataNode batch mark delete limit rate. if 0 for no infinity limit                    |
+| maxDpCntLimit       | Maximum number of dp on each datanode, default 3000, 0 represents setting to default |
+| metaNodeSelector    | Set the node select policy(metanode) for cluster                                     |
+| metaNodesetSelector | Set the nodeset select policy(metanode) for cluster                                  |

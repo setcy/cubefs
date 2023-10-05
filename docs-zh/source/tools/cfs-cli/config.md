@@ -11,9 +11,10 @@ cfs-cli config info
 ```bash
 cfs-cli config set [flags]
 ```
-```bash
-Flags:
-      --addr string      Specify master address {HOST}:{PORT}[,{HOST}:{PORT}]
-      -h, --help         help for set
-      --timeout string   Specify timeout for requests [Unit: s] (default "60")
-```
+
+### Flags
+
+| 名称      | 描述                              |
+|---------|---------------------------------|
+| addr    | 指定主机地址。格式为 {主机}:{端口},{主机}:{端口}] |
+| timeout | 指定请求的超时时间，单位：秒 (默认 "60")        |

@@ -14,12 +14,13 @@
 cfs-cli quota create [volname] [fullpath1,fullpath2] [flags]
 ```
 
-```bash
-Flags:
-  -h, --help            help for create
-      --maxBytes uint   Specify quota max bytes (default 18446744073709551615)
-      --maxFiles uint   Specify quota max files (default 18446744073709551615)
-```
+### Flags
+
+| 名称         | 描述                                 |
+|------------|------------------------------------|
+| maxBytes   | 指定配额最大字节数（默认 18446744073709551615） |
+| maxFiles   | 指定配额最大文件数（默认 18446744073709551615） |
+
 
 ## 应用配额
 
@@ -32,11 +33,12 @@ create，然后执行quota apply命令。
 cfs-cli quota apply [volname] [quotaId] [flags]
 ```
 
-```bash
-Flags:
-  -h, --help                       help for apply
-      --maxConcurrencyInode uint   max concurrency set Inodes (default 1000)
-```
+### Flags
+
+| 名称                  | 描述                          |
+|---------------------|-----------------------------|
+| maxConcurrencyInode | 同时设置 inodes 的最大并发数（默认 1000） |
+
 
 ## 取消应用配额
 
@@ -47,12 +49,13 @@ revoke，然后通过quota list查询确认USEDFILES和USEDBYTES的值为0，再
 cfs-cli quota revoke [volname] [quotaId] [flags]
 ```
 
-```bash
-Flags:
-      --forceInode uint            force revoke quota inode
-  -h, --help                       help for revoke
-      --maxConcurrencyInode uint   max concurrency delete Inodes (default 1000)
-```
+### Flags
+
+| 名称                  | 描述                        |
+|---------------------|---------------------------|
+| forceInode          | 强制撤销配额 inode              |
+| maxConcurrencyInode | 同时删除 inode 的最大并发数（默认1000） |
+
 
 ## 删除配额
 
@@ -61,12 +64,11 @@ delete quota需要指定卷名以及quotaId
 ```bash
 cfs-cli quota delete [volname] [quotaId] [flags]
 ```
+### Flags
 
-```bash
-Flags:
-  -h, --help   help for delete
-  -y, --yes    Do not prompt to clear the quota of inodes
-```
+| 名称     | 描述                |
+|--------|-------------------|
+| y, yes | 跳过所有问题并设置回答为"yes" |
 
 ## 更新配额
 
@@ -76,12 +78,13 @@ update quota需要指定卷名以及quotaId，目前可以更新的值只有maxB
 cfs-cli quota update [volname] [quotaId] [flags]
 ```
 
-```bash
-Flags:
-  -h, --help            help for update
-      --maxBytes uint   Specify quota max bytes
-      --maxFiles uint   Specify quota max files
-```
+### Flags
+
+| 名称       | 描述        |
+|----------|-----------|
+| maxBytes | 指定配额最大字节数 |
+| maxFiles | 指定配额最大文件数 |
+
 
 ## 列出卷配额信息
 
@@ -89,11 +92,6 @@ list quota需要指定卷名，遍历出所有该卷的quota信息
 
 ``` bash
 cfs-cli quota list [volname] [flags]
-```
-
-```bash
-Flags:
-  -h, --help   help for list
 ```
 
 ## 列出所有卷的配额信息
@@ -104,20 +102,10 @@ Flags:
 cfs-cli quota listAll [flags]
 ```
 
-```bash
-Flags:
-  -h, --help   help for listAll
-```
-
 ## 查看某个inode的配额信息
 
 查看具体的某个inode是否带有quota信息
 
 ``` bash
 cfs-cli quota getInode [volname] [inode] [flags]
-```
-
-```bash
-Flags:
-  -h, --help   help for getInode
 ```

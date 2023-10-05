@@ -12,9 +12,9 @@ cfs-cli config info
 cfs-cli config set [flags]
 ```
 
-```bash
-Flags:
-      --addr string      Specify master address {HOST}:{PORT}[,{HOST}:{PORT}]
-      -h, --help         help for set
-      --timeout string   Specify timeout for requests [Unit: s] (default "60")
-```
+### Flags
+
+| Name    | Description                                                     |
+|---------|-----------------------------------------------------------------|
+| addr    | Specify master address {HOST}:{PORT},{HOST}:{PORT}]             |
+| timeout | Specify timeout for requests [Unit: s] (default "60")           |

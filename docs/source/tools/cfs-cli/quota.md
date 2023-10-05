@@ -14,12 +14,12 @@ Note: Paths cannot be repeated or nested.
 cfs-cli quota create [volname] [fullpath1,fullpath2] [flags]
 ```
 
-```bash
-Flags:
-  -h, --help            help for create
-      --maxBytes uint   Specify quota max bytes (default 18446744073709551615)
-      --maxFiles uint   Specify quota max files (default 18446744073709551615)
-```
+### Flags
+
+| Name       | Description                                                   |
+|------------|---------------------------------------------------------------|
+| maxBytes   | Specify quota max bytes (default 18446744073709551615)        |
+| maxFiles   | Specify quota max files (default 18446744073709551615)        |
 
 ## Apply Quota
 
@@ -32,11 +32,11 @@ Note: If there are many files in the quota directory, the return time of this in
 cfs-cli quota apply [volname] [quotaId] [flags]
 ```
 
-```bash
-Flags:
-  -h, --help                       help for apply
-      --maxConcurrencyInode uint   max concurrency set Inodes (default 1000)
-```
+### Flags
+
+| Name                | Description                               |
+|---------------------|-------------------------------------------|
+| maxConcurrencyInode | max concurrency set Inodes (default 1000) |
 
 ## Revoke Quota
 
@@ -47,12 +47,12 @@ The entire process of deleting quota is: execute quota revoke first, then confir
 cfs-cli quota revoke [volname] [quotaId] [flags]
 ```
 
-```bash
-Flags:
-      --forceInode uint            force revoke quota inode
-  -h, --help                       help for revoke
-      --maxConcurrencyInode uint   max concurrency delete Inodes (default 1000)
-```
+### Flags
+
+| Name                | Description                                  |
+|---------------------|----------------------------------------------|
+| forceInode          | force revoke quota inode                     |
+| maxConcurrencyInode | max concurrency delete Inodes (default 1000) |
 
 ## Delete Quota
 
@@ -62,11 +62,11 @@ Delete quota needs to specify volume name and quotaId
 cfs-cli quota delete [volname] [quotaId] [flags]
 ```
 
-```bash
-Flags:
-  -h, --help   help for delete
-  -y, --yes    Do not prompt to clear the quota of inodes
-```
+### Flags
+
+| Name   | Description                                     |
+|--------|-------------------------------------------------|
+| y, yes | Skip all questions and set the answer to "yes". |
 
 ## Update Quota
 
@@ -76,24 +76,19 @@ The update quota needs to specify the volume name and quotaId. Currently, the on
 cfs-cli quota update [volname] [quotaId] [flags]
 ```
 
-```bash
-Flags:
-  -h, --help            help for update
-      --maxBytes uint   Specify quota max bytes
-      --maxFiles uint   Specify quota max files
-```
+### Flags
+
+| Name      | Description                    |
+|-----------|--------------------------------|
+| maxBytes  | Specify quota max bytes        |
+| maxFiles  | Specify quota max files        |
 
 ## List Quota of A Volume
 
 List quota needs to specify the volume name, and traverse all the quota information of the volume
 
-``` bash
-cfs-cli quota list [volname] [flags]
-```
-
 ```bash
-Flags:
-  -h, --help   help for list
+cfs-cli quota list [volname] [flags]
 ```
 
 ## List Quota of All Volumes
@@ -104,20 +99,10 @@ Without any parameters, traverse all the volume information with quota
 cfs-cli quota listAll [flags]
 ```
 
-```bash
-Flags:
-  -h, --help   help for listAll
-```
-
 ## Get Quota of A Inode
 
 Check whether a specific inode has quota information
 
-``` bash
-cfs-cli quota getInode [volname] [inode] [flags]
-```
-
 ```bash
-Flags:
-  -h, --help   help for getInode
+cfs-cli quota getInode [volname] [inode] [flags]
 ```

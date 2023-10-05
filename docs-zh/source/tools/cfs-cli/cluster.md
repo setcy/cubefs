@@ -37,14 +37,19 @@ cfs-cli cluster threshold [float]
 ```bash
 cfs-cli cluster set [flags]
 ```
-```bash
-Flags:
-      --autoRepairRate string        DataNode auto repair rate
-      --batchCount string            MetaNode delete batch count
-      --deleteWorkerSleepMs string   MetaNode delete worker sleep time with millisecond. if 0 for no sleep
-  -h, --help                         help for set
-      --loadFactor string            Load Factor
-      --markDeleteRate string        DataNode batch mark delete limit rate. if 0 for no infinity limit
-      --maxDpCntLimit string         Maximum number of dp on each datanode, default 3000, 0 represents setting to default
-```
 
+### Flags
+
+| 名称                  | 描述                               |
+|---------------------|----------------------------------|
+| autoRepairRate      | 数据节点的自动修复速率                      |
+| batchCount          | 元数据节点的批量删除计数                     |
+| clientIDKey         | 如果集群认证打开则需要此项                    |
+| dataNodeSelector    | 设置集群的数据节点选择策略                    |
+| dataNodesetSelector | 设置集群的数据节点集选择策略                   |
+| deleteWorkerSleepMs | 元数据节点删除工作线程的休眠时间（毫秒）。如果为0则不休眠    |
+| loadFactor          | 负载因子                             |
+| markDeleteRate      | 数据节点的批量标记删除速率。如果为0则没有限制          |
+| maxDpCntLimit       | 每个数据节点上的最大dp数量，默认为3000，0表示设置为默认值 |
+| metaNodeSelector    | 设置集群的元数据节点选择策略                   |
+| metaNodesetSelector | 设置集群的元数据节点集选择策略                  |
